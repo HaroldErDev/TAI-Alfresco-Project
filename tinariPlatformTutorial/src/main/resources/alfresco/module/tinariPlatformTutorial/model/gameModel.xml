@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="g:gameModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+	<description>Game Model</description>
+	<author>Tiziano Tinari</author>
+	<version>1.0</version>
+	
+	<imports>
+		<!-- Alfresco Dictionary Definitions -->
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+		<!-- Alfresco Content Domain Model Definitions -->
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+	</imports>
+	
+	<namespaces>
+		<namespace uri="http://www.game.com/model/content/1.0" prefix="g" />
+	</namespaces>
+	
+	<constraints>
+		<constraint name="g:fireModeList" type="LIST">
+			<parameter name="allowedValues">
+				<list>
+					<value>FULL AUTO</value>
+					<value>SINGLE FIRE</value>
+					<value>SEMI AUTO</value>
+					<value>BURST</value>
+				</list>
+			</parameter>
+			<parameter name="caseSensitive">
+				<value>false</value>
+			</parameter>
+		</constraint>
+		
+		<constraint name="g:operatorClassList" type="LIST">
+			<parameter name="allowedValues">
+				<list>
+					<value>ASSAULT</value>
+					<value>ENGINEER</value>
+					<value>SUPPORT</value>
+					<value>RECON</value>
+				</list>
+			</parameter>
+			<parameter name="caseSensitive">
+				<value>false</value>
+			</parameter>
+		</constraint>
+	</constraints>
+	
+	<types>
+		<type name="g:weapon">
+			<title>Weapon</title>
+			<parent>cm:content</parent>
+			<properties>
+				<property name="g:weaponName">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				
+				<property name="g:fireMode">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+					<constraints>
+						<constraint ref="g:fireModeList" />
+					</constraints>
+				</property>
+				
+				<property name="g:totalAmmo">
+					<type>d:int</type>
+					<mandatory>true</mandatory>
+				</property>
+				
+				<property name="g:weaponType">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+			</properties>
+		</type>
+		
+		<type name="g:operator">
+			<title>Operator</title>
+			<parent>cm:content</parent>
+			<properties>
+				<property name="g:operatorName">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				
+				<property name="g:nationality">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				
+				<property name="g:specialAbility">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+			</properties>
+		</type>
+		
+		<type name="g:operatorClass">
+			<title>Operator Class</title>
+			<parent>cm:content</parent>
+			<properties>
+				<property name="g:classType">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+					<constraints>
+						<constraint ref="g:operatorClassList" />
+					</constraints>
+				</property>
+			</properties>
+			
+			<associations>
+				<association name="g:relatedOperators">
+					<title>Related Operators</title>
+					<source>
+						<mandatory>true</mandatory>
+						<many>false</many>
+					</source>
+					<target>
+						<class>g:operator</class>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</target>
+				</association>
+			</associations>
+		</type>
+	</types>
+	
+	<aspects>
+		<aspect name="g:blocked">
+			<title>Blocked</title>
+			<properties>
+				<property name="g:isBlocked">
+					<type>d:boolean</type>
+					<default>true</default>
+				</property>
+			</properties>
+		</aspect>
+		
+		<aspect name="g:skin">
+			<title>Skin</title>
+			<properties>
+				<property name="g:skinName">
+					<type>d:text</type>
+				</property>
+			</properties>
+		</aspect>
+		
+		<aspect name="g:error">
+			<title>Error</title>
+			<properties>
+				<property name="g:errorMessage">
+					<type>d:text</type>
+				</property>
+			</properties>
+		</aspect>
+	</aspects>
+</model>

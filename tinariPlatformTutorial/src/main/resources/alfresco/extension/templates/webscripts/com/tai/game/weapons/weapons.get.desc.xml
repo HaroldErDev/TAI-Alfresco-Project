@@ -1,0 +1,10 @@
+<webscript>
+	<shortName>Get all weapons</shortName>
+	<description>Returns a list of unblocked weapons</description>
+	<url>game/weapons</url>
+	<url>game/weapons.html</url>
+	<url>game/weapons.json</url>
+	<format default="json">extension</format>
+	<authentication>guest</authentication>
+	<transaction>none</transaction>
+</webscript>

@@ -1,0 +1,626 @@
+<alfresco-config>
+	<!-- Document Library Configuration -->
+	<config evaluator="string-compare" condition="DocumentLibrary">
+		<aspects>
+			<!-- Aspects that a user can see -->
+			<visible>
+				<aspect name="g:blocked" />
+				<aspect name="g:skin" />
+				<aspect name="g:error" />
+			</visible>
+
+			<!-- Aspects that a user can add. Same as "visible" if left empty -->
+			<addable>
+			</addable>
+
+			<!-- Aspects that a user can remove. Same as "visible" if left empty -->
+			<removeable>
+			</removeable>
+		</aspects>
+
+		<types>
+			<type name="cm:content">
+				<subtype name="g:weapon" />
+				<subtype name="g:operatorClass" />
+				<subtype name="g:operator" />
+			</type>
+		</types>
+		
+		<!-- Custom Indicators -->
+    	<indicators>
+        	<indicator id="gameModel-unlock" index="10">
+            	<evaluator negate="true">gameModel.evaluator.doclib.action.isBlocked</evaluator>
+            	<evaluator>gameModel.evaluator.doclib.action.hasOperatorOrWeaponType</evaluator>
+            	<evaluator>gameModel.evaluator.doclib.action.hasBlockedAspect</evaluator>
+        	</indicator>
+        	<indicator id="gameModel-lock" index="10">
+            	<evaluator>gameModel.evaluator.doclib.action.isBlocked</evaluator>
+            	<evaluator>gameModel.evaluator.doclib.action.hasOperatorOrWeaponType</evaluator>
+            	<evaluator>gameModel.evaluator.doclib.action.hasBlockedAspect</evaluator>
+        	</indicator>
+    	</indicators>
+	</config>
+	
+	<!-- Advanced Search Configuration -->
+	<config replace="true" evaluator="string-compare" condition="AdvancedSearch">
+		<advanced-search>
+			<!-- Forms for the advanced search type list -->
+			<forms>
+				<form labelId="search.form.label.cm_content" descriptionId="search.form.desc.cm_content">cm:content</form>
+				<form labelId="search.form.label.cm_folder" descriptionId="search.form.desc.cm_folder">cm:folder</form>
+				<form labelId="type.g_weapon" descriptionId="search.form.desc.g_weapon">g:weapon</form>
+				<form labelId="type.g_operator" descriptionId="search.form.desc.g_operator">g:operator</form>
+				<form labelId="type.g_operatorClass" descriptionId="search.form.desc.g_operatorClass">g:operatorClass</form>
+			</forms>
+		</advanced-search>
+	</config>
+	
+	<!-- g:operator type (new nodes) -->
+	<config evaluator="model-type" condition="g:operator">
+    	<forms>
+        	<!-- Search form -->
+        	<form id="search">
+            	<field-visibility>
+                	<show id="cm:name" />
+                	<show id="cm:title" force="true" />
+                	<show id="cm:description" force="true" />
+                	<show id="mimetype" />
+                	<show id="cm:modified" />
+                	<show id="cm:modifier" />
+                	<!-- g:operator -->
+                	<show id="g:operatorName" />
+                	<show id="g:nationality" />
+                	<show id="g:specialAbility" />
+                	<!-- g:blocked -->
+                	<show id="g:isBlocked" />
+                	<!-- g:skin -->
+                	<show id="g:skinName" />
+            	</field-visibility>
+            	<appearance>
+                	<field id="mimetype">
+                    	<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+                	</field>
+                	<field id="cm:modifier">
+                    	<control>
+                        	<control-param name="forceEditable">true</control-param>
+                    	</control>
+                	</field>
+                	<field id="cm:modified">
+                    	<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+                	</field>
+                	<!-- g:operator -->
+                	<field id="g:operatorName" label-id="prop.g_operatorName">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>
+                	<field id="g:nationality" label-id="prop.g_nationality">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>
+                	<field id="g:specialAbility" label-id="prop.g_specialAbility">
+                		<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field> 
+                	<!-- g:skin -->
+                	<field id="g:skinName" label-id="prop.g_skinName">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>          
+                	<!-- g:blocked -->
+                	<field id="g:isBlocked" label-id="prop.g_isBlocked">
+                    	<control template="/org/alfresco/components/form/controls/checkbox.ftl" />
+                	</field>
+            	</appearance>
+        	</form>
+    	</forms>
+	</config>
+	
+	<!-- g:weapon type (new nodes) -->
+	<config evaluator="model-type" condition="g:weapon">
+    	<forms>
+        	<!-- Search form -->
+        	<form id="search">
+            	<field-visibility>
+                	<show id="cm:name" />
+                	<show id="cm:title" force="true" />
+                	<show id="cm:description" force="true" />
+                	<show id="mimetype" />
+                	<show id="cm:modified" />
+                	<show id="cm:modifier" />
+                	<!-- g:weapon -->
+                	<show id="g:weaponName" />
+                	<show id="g:fireMode" />
+                	<show id="g:totalAmmo" />
+                	<show id="g:weaponType" />
+                	<!-- g:blocked -->
+                	<show id="g:isBlocked" />
+                	<!-- g:skin -->
+                	<show id="g:skinName" />
+            	</field-visibility>
+            	<appearance>
+                	<field id="mimetype">
+                    	<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+                	</field>
+                	<field id="cm:modifier">
+                    	<control>
+                        	<control-param name="forceEditable">true</control-param>
+                    	</control>
+                	</field>
+                	<field id="cm:modified">
+                    	<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+                	</field>
+                	<!-- g:weapon -->
+                	<field id="g:weaponName" label-id="prop.g_weaponName">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>
+                	<field id="g:fireMode" label-id="prop.g_fireMode">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>
+                	<field id="g:totalAmmo" label-id="prop.g_totalAmmo">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>
+                	<filed id="g:weaponType" label-id="prop.g_weaponType">
+                		<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</filed>
+                	<!-- g:skin -->
+                	<field id="g:skinName" label-id="prop.g_skinName">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>          
+                	<!-- g:blocked -->
+                	<field id="g:isBlocked" label-id="prop.g_isBlocked">
+                    	<control template="/org/alfresco/components/form/controls/checkbox.ftl" />
+                	</field>
+            	</appearance>
+        	</form>
+    	</forms>
+	</config>
+	
+	<!-- g:operatorClass type (new nodes) -->
+	<config evaluator="model-type" condition="g:operatorClass">
+    	<forms>
+        	<!-- Search form -->
+        	<form id="search">
+            	<field-visibility>
+                	<show id="cm:name" />
+                	<show id="cm:title" force="true" />
+                	<show id="cm:description" force="true" />
+                	<show id="mimetype" />
+                	<show id="cm:modified" />
+                	<show id="cm:modifier" />
+                	<!-- g:operatorClass -->
+                	<show id="g:classType" />
+            	</field-visibility>
+            	<appearance>
+                	<field id="mimetype">
+                    	<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+                	</field>
+                	<field id="cm:modifier">
+                    	<control>
+                        	<control-param name="forceEditable">true</control-param>
+                    	</control>
+                	</field>
+                	<field id="cm:modified">
+                    	<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+                	</field>
+                	<!-- g:operatorClass -->
+                	<field id="g:classType" label-id="prop.g_classType">
+                    	<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                	</field>
+            	</appearance>
+        	</form>
+    	</forms>
+	</config>
+	
+	<!-- g:operatorClass type (existing nodes) -->
+	<config evaluator="node-type" condition="g:operatorClass">
+		<forms>
+			<!-- Default form configuration for the g:class type -->
+			<form>
+				<field-vibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="mimetype" />
+					<show id="cm:author" force="true" />
+					<show id="cm:creator" for-mode="view" />
+					<show id="cm:created" for-mode="view" />
+					<show id="cm:modifier" for-mode="view" />
+					<show id="cm:modified" for-mode="view" />
+					<!-- g:operatorClass -->
+					<show id="g:classType" />
+					<show id="g:relatedOperators" />
+				</field-vibility>
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>
+					<field id="mimetype">
+						<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+					</field>
+					<field id="cm:originator" read-only="true" />
+					<field id="cm:addressee" read-only="true" />
+					<field id="cm:addressees" read-only="true" />
+					<field id="cm:sentdate" read-only="true" />
+					<field id="cm:subjectline" read-only="true" />
+					<!-- g:operatorClass -->
+					<field id="g:classType" label-id="prop.g_classType" />
+					<field id="g:relatedOperators" label-id="assoc.g_relatedOperators" />
+				</appearance>
+			</form>
+			
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<!-- g:operatorClass -->
+					<show id="g:classType" />
+					<show id="g:relatedOperators" />
+				</field-visibility>
+				<edit-form template="../documentlibrary/forms/doclib-simple-metadata.ftl" />
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>
+					<!-- g:operatorClass -->
+					<field id="g:classType" label-id="prop.g_classType" />
+					<field id="g:relatedOperators" label-id="assoc.g_relatedOperators" />
+				</appearance>
+			</form>
+
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="cm:content" force="true" />
+				</field-visibility>
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:content">
+						<control>
+							<control-param name="editorAppearance">explorer</control-param>
+							<control-param name="forceEditor">true</control-param>
+						</control>
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	
+	<!-- g:operator type (existing nodes) -->
+	<config evaluator="node-type" condition="g:operator">
+		<forms>
+			<!-- Default form configuration for the g:operator type -->
+			<form>
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="mimetype" />
+					<show id="cm:author" force="true" />
+					<show id="size" for-mode="view" />
+					<show id="cm:creator" for-mode="view" />
+					<show id="cm:created" for-mode="view" />
+					<show id="cm:modifier" for-mode="view" />
+					<show id="cm:modified" for-mode="view" />
+					<!-- g:operator -->
+					<show id="g:operatorName" />
+					<show id="g:nationality" />
+					<show id="g:specialAbility" />
+				</field-visibility>
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>
+					<field id="mimetype">
+						<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+					</field>
+					<field id="size">
+						<control template="/org/alfresco/components/form/controls/size.ftl" />
+					</field>
+					<field id="cm:originator" read-only="true" />
+					<field id="cm:addressee" read-only="true" />
+					<field id="cm:addressees" read-only="true" />
+					<field id="cm:sentdate" read-only="true" />
+					<field id="cm:subjectline" read-only="true" />
+					<!-- g:operator -->
+					<filed id="g:operatorName" label-id="prop.g_operatorName" />
+					<filed id="g:nationality" label-id="prop.g_nationality" />
+					<filed id="g:specialAbility" label-id="prop.g_specialAbility" />
+				</appearance>
+			</form>
+
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<!-- g:operator -->
+					<show id="g:operatorName" />
+					<show id="g:nationality" />
+					<show id="g:specialAbility" />
+				</field-visibility>
+				<edit-form template="../documentlibrary/forms/doclib-simple-metadata.ftl" />
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>
+					<!-- g:operator -->
+					<filed id="g:operatorName" label-id="prop.g_operatorName" />
+					<filed id="g:nationality" label-id="prop.g_nationality" />
+					<field id="g:specialAbility" label-id="prop.g_specialAbility" />
+				</appearance>
+			</form>
+
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="cm:content" force="true" />
+				</field-visibility>
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:content">
+						<control>
+							<control-param name="editorAppearance">explorer</control-param>
+							<control-param name="forceEditor">true</control-param>
+						</control>
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	
+	<!-- g:weapon type (existing nodes) -->
+	<config evaluator="node-type" condition="g:weapon">
+		<forms>
+			<!-- Default form configuration for the g:weapon type -->
+			<form>
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="mimetype" />
+					<show id="cm:author" force="true" />
+					<show id="size" for-mode="view" />
+					<show id="cm:creator" for-mode="view" />
+					<show id="cm:created" for-mode="view" />
+					<show id="cm:modifier" for-mode="view" />
+					<show id="cm:modified" for-mode="view" />
+					<!-- g:weapon -->
+					<show id="g:weaponName" />
+					<show id="g:fireMode" />
+					<show id="g:totalAmmo" />
+					<show id="g:weaponType" />
+				</field-visibility>
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>
+					<field id="mimetype">
+						<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+					</field>
+					<field id="size">
+						<control template="/org/alfresco/components/form/controls/size.ftl" />
+					</field>
+					<field id="cm:originator" read-only="true" />
+					<field id="cm:addressee" read-only="true" />
+					<field id="cm:addressees" read-only="true" />
+					<field id="cm:sentdate" read-only="true" />
+					<field id="cm:subjectline" read-only="true" />
+					<!-- g:weapon -->
+					<filed id="g:weaponName" label-id="prop.g_weaponName" />
+					<filed id="g:fireMode" label-id="prop.g_fireMode" />
+					<filed id="g:totalAmmo" label-id="prop.g_totalAmmo" />
+					<field id="g:weaponType" label-id="prop.g_weaponType" />
+				</appearance>
+			</form>
+
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<!-- g:weapon -->
+					<show id="g:weaponName" />
+					<show id="g:fireMode" />
+					<show id="g:totalAmmo" />
+					<show id="g:weaponType" />
+				</field-visibility>
+				<edit-form template="../documentlibrary/forms/doclib-simple-metadata.ftl" />
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>
+					<!-- g:weapon -->
+					<filed id="g:weaponName" label-id="prop.g_weaponName" />
+					<filed id="g:fireMode" label-id="prop.g_fireMode" />
+					<filed id="g:totalAmmo" label-id="prop.g_totalAmmo" />
+					<field id="g:weaponType" label-id="prop.g_weaponType" />
+				</appearance>
+			</form>
+
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="cm:content" force="true" />
+				</field-visibility>
+				<appearance>
+					<field id="cm:name">
+						<control>
+							<control-param name="maxLength">255</control-param>
+						</control>
+					</field>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:content">
+						<control>
+							<control-param name="editorAppearance">explorer</control-param>
+							<control-param name="forceEditor">true</control-param>
+						</control>
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	
+	<!-- Aspects Visibility And Appearance Configuration -->
+	<config evaluator="aspect" condition="g:blocked">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="g:isBlocked" />
+				</field-visibility>
+				<appearance>
+					<field id="g:isBlocked" label-id="prop.g_isBlocked" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<config evaluator="aspect" condition="g:skin">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="g:skinName" />
+				</field-visibility>
+				<appearance>
+					<field id="g:skinName" label-id="prop.g_skinName" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	
+	<config evaluator="aspect" condition="g:error">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="g:errorMessage" />
+				</field-visibility>
+				<appearance>
+					<field id="g:errorMessage" label-id="prop.g_errorMessage" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	
+	<!-- Actions -->
+	<config evaluator="string-compare" condition="DocLibActions">
+    	<actions>
+        	<action id="gameModel-blocked" type="javascript" label="actions.gameModel.blocked" icon="gameModel-lock0">
+            	<param name="function">onActionSimpleRepoAction</param>
+            	<permissions>
+                	<permission allow="true">Write</permission>
+            	</permissions>
+            	<param name="action">set-blocked</param>
+            	<param name="successMessage">message.blocked-flag.blocked</param>
+            	<param name="failureMessage">message.blocked-flag.failure</param>
+            	<evaluator>gameModel.evaluator.doclib.action.hasOperatorOrWeaponType</evaluator>
+            <!--<evaluator negate="true">gameModel.evaluator.doclib.action.isBlocked</evaluator>-->
+        	</action>
+        	<action id="gameModel-unBlocked" type="javascript" label="actions.gameModel.unBlocked" icon="gameModel-unlock0">
+            	<param name="function">onActionSimpleRepoAction</param>
+            	<permissions>
+                	<permission allow="true">Write</permission>
+            	</permissions>
+            	<param name="action">set-unBlocked</param>
+            	<param name="successMessage">message.blocked-flag.unBlocked</param>
+            	<param name="failureMessage">message.blocked-flag.failure</param>
+            	<evaluator>gameModel.evaluator.doclib.action.hasOperatorOrWeaponType</evaluator>
+            <!--<evaluator>gameModel.evaluator.doclib.action.isBlockedNullOrIsBlocked</evaluator>-->
+        	</action>
+        </actions>
+        
+        <actionGroups>
+        	<actionGroup id="document-browse">
+            	<action index="502" id="gameModel-blocked" />
+            	<action index="503" id="gameModel-unBlocked" />
+        	</actionGroup>
+        	<actionGroup id="document-details">
+	            <action index="502" id="gameModel-blocked" />
+	            <action index="503" id="gameModel-unBlocked" />
+        	</actionGroup>
+    	</actionGroups>
+	</config>
+</alfresco-config>
