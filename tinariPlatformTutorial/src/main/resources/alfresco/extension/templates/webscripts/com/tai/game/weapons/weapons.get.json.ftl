@@ -1,13 +1,13 @@
 {
-	"weapons" : [
-		<#list weapons as weapon>
+	"Weapons" : [
+		<#list weapons?values as weapon>
 			{
-				"name" : "${weapon.properties.weaponName}",
-				"fireMode" : "${weapon.properties.fireMode}",
-				"totalAmmo" : "${weapon.properties.totalAmmo}",
-				"type" : "${weapon.properties.weaponType}"
+				"name" : "${weapon["g:weaponName"]}",
+				"fire mode" : "${weapon["g:fireMode"]}",
+				"ammo" : "${weapon["g:totalAmmo"]}",
+				"type" : "${weapon["g:weaponType"]}"
 			}
-			<#if weapons_has_next>,</#if>
+			<#if weapon_has_next>,</#if>
 		</#list>
 	]
 }

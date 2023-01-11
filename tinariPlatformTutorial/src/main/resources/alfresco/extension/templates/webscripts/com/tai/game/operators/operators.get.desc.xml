@@ -1,0 +1,10 @@
+<webscript>
+	<shortname>Get all operators</shortname>
+	<description>Returns a list of unblocked operators</description>
+	<url>/game/operators</url>
+	<url>/game/operators.html</url>
+	<url>/game/operators.json</url>
+	<format default="json">extension</format>
+	<authentication>user</authentication>
+	<transaction>none</transaction>
+</webscript>

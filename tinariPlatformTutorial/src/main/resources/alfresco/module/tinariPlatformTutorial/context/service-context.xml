@@ -37,6 +37,7 @@
         <property name="nodeLocatorService" ref="nodeLocatorService" />
     </bean>
     
+    <!-- General -->
     <bean id="FileFolderManager" class="com.tai.game.action.FileFolderManager">
     	<property name="nodeService">
     		<ref bean="NodeService" />
@@ -46,6 +47,7 @@
     	</property>
     </bean>
     
+    <!-- Actions -->
     <bean id="valorise-and-move" class="com.tai.game.action.ValoriseAndMoveActionExecuter" parent="action-executer">
     	<property name="fileFolderManager">
     		<ref bean="FileFolderManager" />
@@ -79,12 +81,41 @@
     	</property>
 	</bean>
 	
+	<!-- Behaviours -->
 	<bean id="setSkinBehaviour" class="com.tai.game.behaviour.SetSkinBehaviour" init-method="init">
     	<property name="nodeService">
         	<ref bean="NodeService" />
     	</property>
     	<property name="policyComponent">
         	<ref bean="policyComponent" />
+    	</property>
+	</bean>
+	
+	<!-- Web Scripts -->
+	<bean id="webscript.com.tai.game.weapons.weapons.get" class="com.tai.game.scripts.GetWeapons" parent="webscript">
+		<property name="nodeService">
+    		<ref bean="NodeService" />
+    	</property>
+    	<property name="searchService">
+    		<ref bean="SearchService" />
+    	</property>
+	</bean>
+	
+	<bean id="webscript.com.tai.game.operators.operators.get" class="com.tai.game.scripts.GetOperators" parent="webscript">
+		<property name="nodeService">
+    		<ref bean="NodeService" />
+    	</property>
+    	<property name="searchService">
+    		<ref bean="SearchService" />
+    	</property>
+	</bean>
+	
+	<bean id="webscript.com.tai.game.classes.classes.get" class="com.tai.game.scripts.GetClasses" parent="webscript">
+		<property name="nodeService">
+    		<ref bean="NodeService" />
+    	</property>
+    	<property name="searchService">
+    		<ref bean="SearchService" />
     	</property>
 	</bean>
 	

@@ -1,14 +1,14 @@
 <html>
 	<body>
 		<h1>WEAPONS</h1>
-		<#list weapons as weapon>
+		<#list weapons?values as weapon>
 			<div>
-				<srong>Name: </strong><span>${weapon.properties["g:weaponName"]}</span>
-				<srong>Fire Mode: </strong><span>${weapon.properties["g:fireMode"]}</span>
-				<srong>Ammo: </strong><span>${weapon.properties["g:totalAmmo"]}</span>
-				<srong>Type: </strong><span>${weapon.properties["g:weaponType"]}</span>
+				<strong>Name: </strong><span>${weapon["g:weaponName"]}</span><br>
+				<strong>Fire Mode: </strong><span>${weapon["g:fireMode"]}</span><br>
+				<strong>Ammo: </strong><span>${weapon["g:totalAmmo"]}</span><br>
+				<strong>Type: </strong><span>${weapon["g:weaponType"]}</span>
 			</div>
-			<#if weapons_has_next>
+			<#if weapon_has_next>
 				<hr color="black">
 			</#if>
 		</#list>
