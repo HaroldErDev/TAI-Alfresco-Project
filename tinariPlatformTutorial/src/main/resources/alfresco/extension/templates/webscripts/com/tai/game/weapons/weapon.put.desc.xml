@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Update weapon</shortname>
+	<description>Returns the weapon updated</description>
+	<url>/game/weapon?id={id}</url>
+	<url>/game/weapon.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

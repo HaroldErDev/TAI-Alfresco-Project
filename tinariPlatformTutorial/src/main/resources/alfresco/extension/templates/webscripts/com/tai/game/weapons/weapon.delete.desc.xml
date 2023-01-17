@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Delete weapon</shortname>
+	<description>Remove a specified weapon from id</description>
+	<url>/game/weapon?id={id}</url>
+	<url>/game/weapon.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

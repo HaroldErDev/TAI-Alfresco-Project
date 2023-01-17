@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Get operator</shortname>
+	<description>Returns the operator by his id</description>
+	<url>/game/operator?id={id}</url>
+	<url>/game/operator.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>user</authentication>
+	<transaction>none</transaction>
+</webscript>

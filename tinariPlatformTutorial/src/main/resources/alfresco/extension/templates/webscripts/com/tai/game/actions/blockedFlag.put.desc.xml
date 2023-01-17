@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Update blocked flag button</shortname>
+	<description>Returns the new updated value of blocked flag button</description>
+	<url>/game/blockedFlag?id={id}&amp;blockedParam={blockedParam}</url>
+	<url>/game/blockedFlag.html?id={id}&amp;blockedParam={blockedParam}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

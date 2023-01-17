@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Delete class</shortname>
+	<description>Remove a specified class from id</description>
+	<url>/game/class?id={id}</url>
+	<url>/game/class.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

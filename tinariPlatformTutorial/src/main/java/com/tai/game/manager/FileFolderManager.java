@@ -1,4 +1,4 @@
-package com.tai.game.action;
+package com.tai.game.manager;
 
 import java.io.Serializable;
 import java.util.HashMap;

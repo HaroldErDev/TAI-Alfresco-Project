@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Update operator</shortname>
+	<description>Returns the operator updated</description>
+	<url>/game/operator?id={id}</url>
+	<url>/game/operator.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

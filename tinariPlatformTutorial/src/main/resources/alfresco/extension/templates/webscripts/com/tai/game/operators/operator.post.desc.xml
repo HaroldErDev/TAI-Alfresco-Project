@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Post a new operator</shortname>
+	<description>Returns the new operator</description>
+	<url>/game/operator?name={name}&amp;nationality={nationality}&amp;ability={ability}&amp;isBlocked={isBlocked}&amp;skinName={skinName?}</url>
+	<url>/game/operator.html?name={name}&amp;nationality={nationality}&amp;ability={ability}&amp;isBlocked={isBlocked}&amp;skinName={skinName?}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

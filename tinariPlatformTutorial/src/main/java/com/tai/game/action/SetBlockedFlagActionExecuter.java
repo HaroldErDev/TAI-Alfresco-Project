@@ -19,7 +19,7 @@ public class SetBlockedFlagActionExecuter extends ActionExecuterAbstractBase {
 	
 	private static final Log LOG = LogFactory.getLog(SetBlockedFlagActionExecuter.class);
 	
-	public static final String NAME = "set-blocked-flag-action";
+	public static final String NAME = "set-blocked-flag";
 	public static final String PARAM_BLOCKED = "blocked";
 	
 	protected NodeService nodeService;

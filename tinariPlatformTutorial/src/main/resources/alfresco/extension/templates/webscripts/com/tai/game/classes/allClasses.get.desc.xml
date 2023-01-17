@@ -1,10 +1,9 @@
 <webscript>
 	<shortname>Get all classes</shortname>
-	<description>Returns a list of unblocked classes</description>
+	<description>Returns a list of classes</description>
 	<url>/game/classes</url>
 	<url>/game/classes.html</url>
-	<url>/game/classes.json</url>
-	<format default="json">extension</format>
+	<format default="html">extension</format>
 	<authentication>user</authentication>
 	<transaction>none</transaction>
 </webscript>

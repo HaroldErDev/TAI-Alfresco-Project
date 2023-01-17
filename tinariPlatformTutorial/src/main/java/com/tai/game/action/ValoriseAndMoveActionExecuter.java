@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tai.game.manager.FileFolderManager;
 import com.tai.game.model.GameModel;
 
 public class ValoriseAndMoveActionExecuter extends ActionExecuterAbstractBase {

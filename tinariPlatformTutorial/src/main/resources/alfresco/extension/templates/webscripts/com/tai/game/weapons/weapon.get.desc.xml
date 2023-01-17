@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Get weapon</shortname>
+	<description>Returns the weapon by its id</description>
+	<url>/game/weapon?id={id}</url>
+	<url>/game/weapon.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>user</authentication>
+	<transaction>none</transaction>
+</webscript>

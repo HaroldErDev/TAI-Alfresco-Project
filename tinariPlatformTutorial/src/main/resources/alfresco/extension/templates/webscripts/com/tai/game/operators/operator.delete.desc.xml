@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Delete operator</shortname>
+	<description>Remove a specified operator from id</description>
+	<url>/game/operator?id={id}</url>
+	<url>/game/operator.html?id={id}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>

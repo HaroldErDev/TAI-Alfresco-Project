@@ -1,0 +1,9 @@
+<webscript>
+	<shortname>Post a new class</shortname>
+	<description>Returns the new class</description>
+	<url>/game/class?type={type}&amp;relatedOperators={relatedOperators?}</url>
+	<url>/game/class.html?type={type}&amp;relatedOperators={relatedOperators?}</url>
+	<format default="html">extension</format>
+	<authentication>admin</authentication>
+	<transaction>required</transaction>
+</webscript>
