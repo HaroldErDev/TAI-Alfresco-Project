@@ -59,9 +59,9 @@ public class ValoriseAndMoveActionExecuter extends ActionExecuterAbstractBase {
 	}
 	
 	private void addSkinAspect(NodeRef nodeRef, String skinName) {
-		nodeService.addAspect(nodeRef, GameModel.ASPECT_G_SKIN, Collections.singletonMap(GameModel.PROP_G_SKIN_NAME, skinName));
 		LOG.debug("Added aspect " + "'"+GameModel.ASPECT_G_SKIN.getLocalName()+"'");
 		LOG.debug("The 'skinName' property has been set to " + (skinName.isEmpty() ? EMPTY_STRING : "'"+skinName+"'"));
+		nodeService.addAspect(nodeRef, GameModel.ASPECT_G_SKIN, Collections.singletonMap(GameModel.PROP_G_SKIN_NAME, skinName));
 	}
 	
 	@Override

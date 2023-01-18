@@ -32,7 +32,7 @@ public class SetSkinBehaviour {
 	
 	public void init() {
 		// Create behaviours
-		this.onAddSkinAspect = new JavaBehaviour(this, "onAddSkinAspect", NotificationFrequency.TRANSACTION_COMMIT);
+		this.onAddSkinAspect = new JavaBehaviour(this, "onAddSkinAspect", NotificationFrequency.FIRST_EVENT);
 		
 		// Bind behaviours to node policies
 		this.policyComponent.bindClassBehaviour(NodeServicePolicies.OnAddAspectPolicy.QNAME,

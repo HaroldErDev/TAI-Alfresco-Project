@@ -1,11 +1,15 @@
 <html>
 	<body>
+		<h1>OPERATOR</h1>
 		<div>
-			<p>Successfully added operator with id: ${id}</p>
-		</div>
-		<br>
-		<div>
-			<p>Click <a href="/alfresco/s/game/operator.html?id=${id}">HERE</a> to see the new operator</p>
+			<strong>Id: </strong><span>${id}</span><br>
+			<strong>Name: </strong><span>${name}</span><br>
+			<strong>Nationality: </strong><span>${nationality}</span><br>
+			<strong>Ability: </strong><span>${ability!"None"}</span><br>
+			<strong>Blocked: </strong><span>${isBlocked?c}</span>
+			<#if (isBlocked == false)>
+				<br><strong>Skin: </strong><span>${skin}</span>
+			</#if>
 		</div>
 	</body>
 </html>

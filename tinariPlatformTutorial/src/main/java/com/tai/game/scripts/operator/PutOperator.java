@@ -59,7 +59,7 @@ public class PutOperator extends DeclarativeWebScript {
 			// Validate the node
 			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR, status)) return model;
 			
-			// Update the properties
+			// Update properties
 			LOG.debug("Updating properties...");
 			Map<QName, Serializable> operatorProperties = nodeService.getProperties(nodeRef);
 			NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);

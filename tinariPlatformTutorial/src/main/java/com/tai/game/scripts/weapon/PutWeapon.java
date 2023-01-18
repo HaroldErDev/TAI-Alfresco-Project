@@ -64,7 +64,7 @@ public class PutWeapon extends DeclarativeWebScript {
 			// Validate the node
 			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_WEAPON, status)) return model;
 				
-			// Update the properties
+			// Update properties
 			LOG.debug("Updating properties...");
 			Map<QName, Serializable> weaponProperties = nodeService.getProperties(nodeRef);
 			NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);

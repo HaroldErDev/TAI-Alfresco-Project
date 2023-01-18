@@ -2,7 +2,9 @@ package com.tai.game.scripts.operatorClass;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,8 @@ public class PutClass extends DeclarativeWebScript {
 		// Get all parameters from the URI query
 		String id = req.getParameter("id");
 		String type = req.getParameter("type");
-		String[] relatedOperators = StringUtils.split(req.getParameter("relatedOperators"), ",");
+		String[] operatorsToAdd = StringUtils.split(req.getParameter("addOperators"), ",");
+		String[] operatorsToRemove = StringUtils.split(req.getParameter("removeOperators"), ",");
 		
 		// Check if the id parameter was passed to the URI query
 		if (id == null || id.isEmpty()) {
@@ -66,10 +69,9 @@ public class PutClass extends DeclarativeWebScript {
 			// Validate the node
 			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR_CLASS, status)) return model;
 			
-			// Update the properties
+			// Update properties
 			LOG.debug("Updating properties...");
 			Map<QName, Serializable> classProperties = nodeService.getProperties(nodeRef);
-			List<NodeRef> operators = new ArrayList<>();
 			NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
 			
 			if (type != null && !type.isEmpty()) {
@@ -106,12 +108,28 @@ public class PutClass extends DeclarativeWebScript {
 				classProperties.put(GameModel.PROP_G_CLASS_TYPE, typeUpperCase);
 				LOG.debug("New class type: " + typeUpperCase);
 			}
-			if (relatedOperators != null && relatedOperators.length != 0) {
-				for (AssociationRef assocRef : nodeService.getTargetAssocs(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS)) {
-					operators.add(assocRef.getTargetRef());
-				}
+			
+			// Get all operators in the association
+			List<NodeRef> operators = new ArrayList<>();
+			for (AssociationRef assocRef : nodeService.getTargetAssocs(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS)) {
+				operators.add(assocRef.getTargetRef());
+			}
+			
+			// Remove from the association the operators passed to the URI query
+			if (operatorsToRemove != null && operatorsToRemove.length != 0) {
+				List<String> toRemove = Arrays.asList(operatorsToRemove);
+				Iterator<NodeRef> iterator = operators.iterator();
 				
-				for (String operatorName : relatedOperators) {
+				while (iterator.hasNext()) {
+					String operatorName = (String) nodeService.getProperty(iterator.next(), GameModel.PROP_G_OPERATOR_NAME);
+					
+					if (toRemove.contains(operatorName)) iterator.remove();
+				}
+			}
+			
+			// Add to the association the operators passed to the URI query
+			if (operatorsToAdd != null && operatorsToAdd.length != 0) {
+				for (String operatorName : operatorsToAdd) {
 					NodeRef operatorNodeRef = fileFolderManager.findNodeByName(docLibNodeRef, operatorName);
 					
 					if (operatorNodeRef == null) {

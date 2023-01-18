@@ -1,13 +1,17 @@
 package com.tai.game.scripts.operator;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
@@ -20,6 +24,7 @@ public class PostOperator extends DeclarativeWebScript {
 	
 	private static Log LOG = LogFactory.getLog(PostOperator.class);
 	
+	private NodeService nodeService;
 	private FileFolderService fileFolderService;
 	private SearchService searchService;
 	
@@ -28,42 +33,77 @@ public class PostOperator extends DeclarativeWebScript {
 	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status) {
 		LOG.debug("Inside the PostOperator Webscript");
 		
+		// Init implementations
 		Map<String, Object> model = new HashMap<>();
 		
+		// Get all parameters from the URI query
 		String name = req.getParameter("name");
 		String nationality = req.getParameter("nationality");
 		String ability = req.getParameter("ability");
-		String isBlocked = req.getParameter("isBlocked");
+		String blocked = req.getParameter("isBlocked");
 		String skinName = req.getParameter("skinName");
 		
-		if (name == null || nationality == null || ability == null || isBlocked == null || 
-			name.isEmpty() || nationality.isEmpty() || ability.isEmpty() || isBlocked.isEmpty()) {
-			status.setCode(400, "Required properties has not been provided");
+		// Check if required parameters were passed to the URI query
+		if (name == null || name.isEmpty() || nationality == null || nationality.isEmpty() ||
+			ability == null || ability.isEmpty() || blocked == null || blocked.isEmpty()) {
+			status.setCode(400, "Required parameters has not been provided");
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
 			return model;
 		}
 		
-		NodeRef dropzoneFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
-													 SearchService.LANGUAGE_FTS_ALFRESCO, 
-													 "TYPE:'cm:folder' AND cm:name:'Dropzone'").getNodeRef(0);
+		// Check if isBlocked parameter is setted correctly
+		blocked = blocked.toLowerCase();
 		
-		if (dropzoneFolder == null) {
-			status.setCode(404, "There is no 'Dropzone' folder");
+		if (!blocked.equals("true") && !blocked.equals("false")) {
+			status.setCode(400, "'isBlocked' is neither true or false");
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			String concatProps = String.join("_", GameModel.TYPE_G_OPERATOR.getLocalName(), name, nationality, ability, isBlocked, skinName);
-			NodeRef newOperator = fileFolderService.create(dropzoneFolder, concatProps, ContentModel.TYPE_CONTENT).getNodeRef();
-			LOG.debug("Created new NodeRef: " + newOperator);
+			return model;
 		}
 		
+		Boolean isBlocked = Boolean.parseBoolean(blocked);
+		if (skinName == null) skinName = StringUtils.EMPTY;
+		
+		// Get the Operators folder
+		NodeRef operatorsFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
+													  SearchService.LANGUAGE_FTS_ALFRESCO, 
+													  "TYPE:'cm:folder' AND cm:name:'Operators'").getNodeRef(0);
+		
+		if (operatorsFolder == null) {
+			status.setCode(404, "There is no 'Operators' folder");
+			status.setRedirect(true);
+			
+			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+			return model;
+		}
+		
+		// Create a new node of type operator and set all properties
+		NodeRef newOperator = fileFolderService.create(operatorsFolder, name, GameModel.TYPE_G_OPERATOR).getNodeRef();
+		LOG.debug("Created new NodeRef: " + newOperator);
+		
+		Map<QName, Serializable> properties = nodeService.getProperties(newOperator);
+		properties.put(GameModel.PROP_G_OPERATOR_NAME, name);
+		properties.put(GameModel.PROP_G_NATIONALITY, nationality);
+		properties.put(GameModel.PROP_G_SPECIAL_ABILITY, ability);
+		
+		nodeService.setProperties(newOperator, properties);
+		nodeService.addAspect(newOperator, GameModel.ASPECT_G_BLOCKED, Collections.singletonMap(GameModel.PROP_G_IS_BLOCKED, isBlocked));
+		if (!isBlocked) {
+			// skinName property will be added from behaviour
+			nodeService.addAspect(newOperator, GameModel.ASPECT_G_SKIN, Collections.singletonMap(GameModel.PROP_G_SKIN_NAME, skinName));
+		}
+		LOG.debug("All properties setted with success");
+		
+		// Fill the model
+		model.put("id", newOperator.getId());
 		model.put("name", name);
 		model.put("nationality", nationality);
 		model.put("ability", ability);
 		model.put("isBlocked", isBlocked);
+		model.put("skin", nodeService.getProperty(newOperator, GameModel.PROP_G_SKIN_NAME));
 		
 		return model;
 	}
@@ -74,6 +114,10 @@ public class PostOperator extends DeclarativeWebScript {
 	
 	public void setFileFolderService(FileFolderService fileFolderService) {
 		this.fileFolderService = fileFolderService;
+	}
+
+	public void setNodeService(NodeService nodeService) {
+		this.nodeService = nodeService;
 	}
 	
 }
