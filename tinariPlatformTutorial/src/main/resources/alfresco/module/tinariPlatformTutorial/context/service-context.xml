@@ -19,23 +19,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
-
-    <!-- A simple class that is initialized by Spring -->
-    <bean id="com.tai.platform.tutorial.Demo" class="com.tai.platform.tutorial.platformsample.Demo" init-method="init" />
-
-    <!-- A simple module component that will be executed once.
-         Note. this module component will only be executed once, and then there will be an entry for it in the Repo DB.
-         So doing for example $ mvn clean install alfresco:run twice will only execute this component the first time.
-         You need to remove /alf_data_dev for it to be executed again. -->
-    <bean id="com.tai.platform.tutorial.DemoComponent" class="com.tai.platform.tutorial.platformsample.DemoComponent" parent="module.baseComponent" >
-        <property name="moduleId" value="tinariPlatformTutorial" />  <!-- See module.properties -->
-        <property name="name" value="DemoComponent" />
-        <property name="description" value="A demonstration component" />
-        <property name="sinceVersion" value="1.0" />
-        <property name="appliesFromVersion" value="0.99" /> <!-- 1.0 would not work here when using SNAPSHOT version in project  -->
-        <property name="nodeService" ref="NodeService" />
-        <property name="nodeLocatorService" ref="nodeLocatorService" />
-    </bean>
     
     <!-- General -->
     <bean id="FileFolderManager" class="com.tai.game.manager.FileFolderManager">
@@ -52,6 +35,12 @@
 	<bean id="NodeValidator" class="com.tai.game.scripts.NodeValidator">
 		<property name="nodeService">
     		<ref bean="NodeService" />
+    	</property>
+    	<property name="fileFolderService">
+    		<ref bean="FileFolderService" />
+    	</property>
+    	<property name="dictionaryService">
+    		<ref bean="DictionaryService" />
     	</property>
 	</bean>
     
@@ -171,8 +160,8 @@
     	<property name="nodeService">
     		<ref bean="NodeService" />
     	</property>
-    	<property name="dictionaryService">
-    		<ref bean="DictionaryService" />
+    	<property name="nodeValidator">
+    		<ref bean="NodeValidator" />
     	</property>
 	</bean>
 	
@@ -186,6 +175,9 @@
     	<property name="nodeService">
     		<ref bean="NodeService" />
     	</property>
+    	<property name="nodeValidator">
+    		<ref bean="NodeValidator" />
+    	</property>
 	</bean>
 	
 	<bean id="webscript.com.tai.game.classes.class.post" class="com.tai.game.scripts.operatorClass.PostClass" parent="webscript">
@@ -198,11 +190,11 @@
     	<property name="nodeService">
     		<ref bean="NodeService" />
     	</property>
-    	<property name="dictionaryService">
-    		<ref bean="DictionaryService" />
-    	</property>
     	<property name="fileFolderManager">
     		<ref bean="FileFolderManager" />
+    	</property>
+    	<property name="nodeValidator">
+    		<ref bean="NodeValidator" />
     	</property>
 	</bean>
 	
@@ -239,9 +231,6 @@
 		<property name="nodeService">
     		<ref bean="NodeService" />
     	</property>
-    	<property name="dictionaryService">
-    		<ref bean="DictionaryService" />
-    	</property>
     	<property name="fileFolderManager">
     		<ref bean="FileFolderManager" />
     	</property>
@@ -272,9 +261,6 @@
 		<property name="nodeService">
     		<ref bean="NodeService" />
     	</property>
-    	<property name="dictionaryService">
-    		<ref bean="DictionaryService" />
-    	</property>
     	<property name="fileFolderManager">
     		<ref bean="FileFolderManager" />
     	</property>
@@ -292,6 +278,9 @@
     	</property>
     	<property name="actionService">
     		<ref bean="ActionService" />
+    	</property>
+    	<property name="nodeValidator">
+    		<ref bean="NodeValidator" />
     	</property>
 	</bean>
 	

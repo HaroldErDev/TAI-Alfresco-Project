@@ -17,6 +17,7 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 
 import com.tai.game.action.SetBlockedFlagActionExecuter;
 import com.tai.game.model.GameModel;
+import com.tai.game.scripts.NodeValidator;
 
 public class PutBlockedFlag extends DeclarativeWebScript {
 	
@@ -24,6 +25,7 @@ public class PutBlockedFlag extends DeclarativeWebScript {
 	
 	private NodeService nodeService;
 	private ActionService actionService;
+	private NodeValidator nodeValidator;
 	
 	
 	@Override
@@ -47,14 +49,7 @@ public class PutBlockedFlag extends DeclarativeWebScript {
 		}
 		
 		blockedParam = blockedParam.toLowerCase();
-		
-		if (!blockedParam.equals("true") && !blockedParam.equals("false")) {
-			status.setCode(400, "'blockedParam' is neither true or false");
-			status.setRedirect(true);
-			
-			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			return model;
-		}
+		if (!nodeValidator.blockedParamIsValid(blockedParam, status)) return model;
 		
 		// Get the node from id and execute the set-blocked-flag action
 		LOG.debug("Getting NodeRef from id: " + id);
@@ -66,28 +61,33 @@ public class PutBlockedFlag extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else if (nodeService.getType(nodeRef).equals(GameModel.TYPE_G_OPERATOR_CLASS)) {
+			return model;
+		}
+		
+		if (nodeService.getType(nodeRef).equals(GameModel.TYPE_G_OPERATOR_CLASS)) {
 			status.setCode(400, "Node " + "'"+nodeRef+"'" + " is not a weapon or operator type");
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Create and execute the set-blocked-flag action
-			Map<String, Serializable> actionParams = new HashMap<>();
-			actionParams.put(SetBlockedFlagActionExecuter.PARAM_BLOCKED, Boolean.parseBoolean(blockedParam));
-			
-			Action action = actionService.createAction(SetBlockedFlagActionExecuter.NAME, actionParams);
-				
-			if (action == null) {
-				status.setCode(404, "Could not create " + SetBlockedFlagActionExecuter.NAME + " action");
-				status.setRedirect(true);
-				
-				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			} else {
-				actionService.executeAction(action, nodeRef);
-				LOG.debug(SetBlockedFlagActionExecuter.NAME + " action executed with success");
-			}
+			return model;
 		}
+		
+		// Create and execute the set-blocked-flag action
+		Map<String, Serializable> actionParams = new HashMap<>();
+		actionParams.put(SetBlockedFlagActionExecuter.PARAM_BLOCKED, Boolean.parseBoolean(blockedParam));
+		
+		Action action = actionService.createAction(SetBlockedFlagActionExecuter.NAME, actionParams);
+			
+		if (action == null) {
+			status.setCode(404, "Could not create " + SetBlockedFlagActionExecuter.NAME + " action");
+			status.setRedirect(true);
+			
+			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+			return model;
+		}
+		
+		actionService.executeAction(action, nodeRef);
+		LOG.debug(SetBlockedFlagActionExecuter.NAME + " action executed with success");
 		
 		// Fill the model
 		model.put("blockedParam", blockedParam);
@@ -102,6 +102,10 @@ public class PutBlockedFlag extends DeclarativeWebScript {
 
 	public void setActionService(ActionService actionService) {
 		this.actionService = actionService;
+	}
+
+	public void setNodeValidator(NodeValidator nodeValidator) {
+		this.nodeValidator = nodeValidator;
 	}
 	
 }

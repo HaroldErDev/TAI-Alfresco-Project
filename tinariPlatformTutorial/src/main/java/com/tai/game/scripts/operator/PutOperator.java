@@ -1,6 +1,5 @@
 package com.tai.game.scripts.operator;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,6 @@ import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
@@ -51,51 +49,54 @@ public class PutOperator extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get the node from id and update its properties
-			LOG.debug("Getting NodeRef from id: " + id);
-			NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
-			
-			// Validate the node
-			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR, status)) return model;
-			
-			// Update properties
-			LOG.debug("Updating properties...");
-			Map<QName, Serializable> operatorProperties = nodeService.getProperties(nodeRef);
-			NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
-			
-			if (name != null && !name.isEmpty()) {
-				if (fileFolderManager.findNodeByName(docLibNodeRef, name) != null) {
-					status.setCode(400, "An operator with name " + "'"+name+"'" + " already exists");
-					status.setRedirect(true);
-					
-					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-					return model;
-				}
-				
-				try {
-					fileFolderService.rename(nodeRef, name);
-				} catch (FileNotFoundException e) {
-					LOG.error(e.getMessage(), e);
-					return model;
-				}
-				
-				operatorProperties.put(GameModel.PROP_G_OPERATOR_NAME, name);
-				LOG.debug("New operator name: " + name);
-			}
-			if (nationality != null && !nationality.isEmpty()) {
-				operatorProperties.put(GameModel.PROP_G_NATIONALITY, nationality);
-				LOG.debug("New operator nationality: " + nationality);
-			}
-			if (ability != null && !ability.isEmpty()) {
-				operatorProperties.put(GameModel.PROP_G_SPECIAL_ABILITY, ability);
-				LOG.debug("New operator ability: " + ability);
-			}
-			
-			nodeService.setProperties(nodeRef, operatorProperties);
-			
-			LOG.debug("All selected properties has been updated");
+			return model;
 		}
+		
+		// Get the node from id and update its properties
+		LOG.debug("Getting NodeRef from id: " + id);
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
+		
+		// Validate the node
+		if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR, status)) return model;
+		
+		// Update properties
+		LOG.debug("Updating properties...");
+		
+		if (name != null && !name.isEmpty()) {
+			NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(nodeRef), "Operators");
+			
+			if (operatorsFolder == null) {
+				status.setCode(404, "There is no 'Operators' folder");
+				status.setRedirect(true);
+					
+				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+				return model;
+			}
+			
+			if (nodeValidator.alreadyExists(operatorsFolder, name, status)) return model;
+			
+			try {
+				fileFolderService.rename(nodeRef, name);
+			} catch (FileNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+				return model;
+			}
+			
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_OPERATOR_NAME, name);
+			LOG.debug("New operator name: " + name);
+		}
+		
+		if (nationality != null && !nationality.isEmpty()) {
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_NATIONALITY, nationality);
+			LOG.debug("New operator nationality: " + nationality);
+		}
+		
+		if (ability != null && !ability.isEmpty()) {
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_SPECIAL_ABILITY, ability);
+			LOG.debug("New operator ability: " + ability);
+		}
+		
+		LOG.debug("All selected properties has been updated");
 		
 		// Fill the model
 		model.put("id", id);

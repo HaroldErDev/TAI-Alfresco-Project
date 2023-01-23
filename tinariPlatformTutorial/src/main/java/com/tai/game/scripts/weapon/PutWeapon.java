@@ -1,18 +1,13 @@
 package com.tai.game.scripts.weapon;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.service.cmr.dictionary.Constraint;
-import org.alfresco.service.cmr.dictionary.ConstraintException;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
@@ -28,7 +23,6 @@ public class PutWeapon extends DeclarativeWebScript {
 	private static Log LOG = LogFactory.getLog(PutWeapon.class);
 	
 	private NodeService nodeService;
-	private DictionaryService dictionaryService;
 	private FileFolderService fileFolderService;
 	private FileFolderManager fileFolderManager;
 	private NodeValidator nodeValidator;
@@ -56,69 +50,62 @@ public class PutWeapon extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get the node from id and update its properties
-			LOG.debug("Getting NodeRef from id: " + id);
-			NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
-			
-			// Validate the node
-			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_WEAPON, status)) return model;
-				
-			// Update properties
-			LOG.debug("Updating properties...");
-			Map<QName, Serializable> weaponProperties = nodeService.getProperties(nodeRef);
-			NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
-			
-			if (name != null && !name.isEmpty()) {
-				if (fileFolderManager.findNodeByName(docLibNodeRef, name) != null) {
-					status.setCode(400, "A weapon with name " + "'"+name+"'" + " already exists");
-					status.setRedirect(true);
-					
-					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-					return model;
-				}
-				
-				try {
-					fileFolderService.rename(nodeRef, name);
-				} catch (FileNotFoundException e) {
-					LOG.error(e.getMessage(), e);
-					return model;
-				}
-				
-				weaponProperties.put(GameModel.PROP_G_WEAPON_NAME, name);
-				LOG.debug("New weapon name: " + name);
-			}
-			if (type != null && !type.isEmpty()) {
-				weaponProperties.put(GameModel.PROP_G_WEAPON_TYPE, type);
-				LOG.debug("New weapon type: " + type);
-			}
-			if (ammo != null && !ammo.isEmpty()) {
-				weaponProperties.put(GameModel.PROP_G_TOTAL_AMMO, ammo);
-				LOG.debug("New weapon ammo: " + ammo);
-			}
-			if (fireMode != null && !fireMode.isEmpty()) {
-				Constraint fireModeList = dictionaryService.getConstraint(GameModel.CONS_G_FIRE_MODE_LIST).getConstraint();
-				fireMode = fireMode.toUpperCase();
-				
-				try {
-					fireModeList.evaluate(fireMode);
-				} catch (ConstraintException e) {
-					status.setCode(400, "'"+fireMode+"'" + " is not a valid value | " + fireModeList.getParameters().entrySet()
-																													.toArray()[0]);
-					status.setRedirect(true);
-					
-					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-					return model;
-				}
-				
-				weaponProperties.put(GameModel.PROP_G_FIRE_MODE, fireMode);
-				LOG.debug("New weapon fire mode: " + fireMode);
-			}
-			
-			nodeService.setProperties(nodeRef, weaponProperties);
-			
-			LOG.debug("All selected properties has been updated");
+			return model;
 		}
+		
+		// Get the node from id and update its properties
+		LOG.debug("Getting NodeRef from id: " + id);
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
+		
+		// Validate the node
+		if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_WEAPON, status)) return model;
+			
+		// Update properties
+		LOG.debug("Updating properties...");
+		
+		if (name != null && !name.isEmpty()) {
+			NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(nodeRef), "Weapons");
+			
+			if (weaponsFolder == null) {
+				status.setCode(404, "There is no 'Weapons' folder");
+				status.setRedirect(true);
+					
+				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+				return model;
+			}
+			
+			if (nodeValidator.alreadyExists(weaponsFolder, name, status)) return model;
+			
+			try {
+				fileFolderService.rename(nodeRef, name);
+			} catch (FileNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+				return model;
+			}
+			
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_WEAPON_NAME, name);
+			LOG.debug("New weapon name: " + name);
+		}
+		
+		if (type != null && !type.isEmpty()) {
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_WEAPON_TYPE, type);
+			LOG.debug("New weapon type: " + type);
+		}
+		
+		if (ammo != null && !ammo.isEmpty()) {
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_TOTAL_AMMO, ammo);
+			LOG.debug("New weapon ammo: " + ammo);
+		}
+		
+		if (fireMode != null && !fireMode.isEmpty()) {
+			fireMode = fireMode.toUpperCase();
+			if (!nodeValidator.constraintValueParamIsValid(fireMode, GameModel.CONS_G_FIRE_MODE_LIST, status)) return model;
+			
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_FIRE_MODE, fireMode);
+			LOG.debug("New weapon fire mode: " + fireMode);
+		}
+		
+		LOG.debug("All selected properties has been updated");
 		
 		// Fill the model
 		model.put("id", id);
@@ -128,10 +115,6 @@ public class PutWeapon extends DeclarativeWebScript {
 	
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
-	}
-
-	public void setDictionaryService(DictionaryService dictionaryService) {
-		this.dictionaryService = dictionaryService;
 	}
 
 	public void setFileFolderService(FileFolderService fileFolderService) {

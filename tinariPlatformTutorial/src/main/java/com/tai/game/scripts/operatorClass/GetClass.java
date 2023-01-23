@@ -44,25 +44,27 @@ public class GetClass extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get the node from id and add to the model its properties
-			LOG.debug("Getting NodeRef from id: " + id);
-			NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
-			
-			// Validate the node
-			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR_CLASS, status)) return model;
-			
-			// Fill the model
-			List<String> relatedOperators = new ArrayList<>();
-			for (AssociationRef assocRef : nodeService.getTargetAssocs(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS)) {
-				relatedOperators.add((String) nodeService.getProperty(assocRef.getTargetRef(), ContentModel.PROP_NAME));
-			}
-			
-			model.put("type", nodeService.getProperty(nodeRef, GameModel.PROP_G_CLASS_TYPE));
-			model.put("relatedOperators", relatedOperators);
-			
-			LOG.debug("All properties added to the model");
+			return model;
 		}
+		
+		// Get the node from id and add to the model its properties
+		LOG.debug("Getting NodeRef from id: " + id);
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
+		
+		// Validate the node
+		if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR_CLASS, status)) return model;
+		
+		// Fill the model
+		List<OperatorInfo> relatedOperators = new ArrayList<>();
+		for (AssociationRef assocRef : nodeService.getTargetAssocs(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS)) {
+			NodeRef operator = assocRef.getTargetRef();
+			relatedOperators.add(new OperatorInfo(operator.getId(), (String) nodeService.getProperty(operator, ContentModel.PROP_NAME)));
+		}
+		
+		model.put("type", nodeService.getProperty(nodeRef, GameModel.PROP_G_CLASS_TYPE));
+		model.put("relatedOperators", relatedOperators);
+		
+		LOG.debug("All properties added to the model");
 		
 		return model;
 	}

@@ -1,8 +1,8 @@
 <webscript>
 	<shortname>Update weapon</shortname>
 	<description>Returns the weapon updated</description>
-	<url>/game/weapon?id={id}</url>
-	<url>/game/weapon.html?id={id}</url>
+	<url>/game/weapon?id={id}&amp;name={name?}&amp;type={type?}&amp;ammo={ammo?}&amp;fireMode={fireMode?}</url>
+	<url>/game/weapon.html?id={id}&amp;name={name?}&amp;type={type?}&amp;ammo={ammo?}&amp;fireMode={fireMode?}</url>
 	<format default="html">extension</format>
 	<authentication>admin</authentication>
 	<transaction>required</transaction>

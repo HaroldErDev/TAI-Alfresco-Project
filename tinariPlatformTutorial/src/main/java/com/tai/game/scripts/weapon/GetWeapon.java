@@ -40,24 +40,25 @@ public class GetWeapon extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get the node from id and add to the model its properties
-			LOG.debug("Getting NodeRef from id: " + id);
-			NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
-			
-			// Validate the node
-			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_WEAPON, status)) return model;
-			
-			// Fill the model
-			model.put("name", nodeService.getProperty(nodeRef, GameModel.PROP_G_WEAPON_NAME));
-			model.put("type", nodeService.getProperty(nodeRef, GameModel.PROP_G_WEAPON_TYPE));
-			model.put("ammo", nodeService.getProperty(nodeRef, GameModel.PROP_G_TOTAL_AMMO));
-			model.put("fireMode", nodeService.getProperty(nodeRef, GameModel.PROP_G_FIRE_MODE));
-			model.put("isBlocked", nodeService.getProperty(nodeRef, GameModel.PROP_G_IS_BLOCKED));
-			model.put("skin", nodeService.getProperty(nodeRef, GameModel.PROP_G_SKIN_NAME));
-			
-			LOG.debug("All properties added to the model");
+			return model;
 		}
+		
+		// Get the node from id and add to the model its properties
+		LOG.debug("Getting NodeRef from id: " + id);
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
+		
+		// Validate the node
+		if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_WEAPON, status)) return model;
+		
+		// Fill the model
+		model.put("name", nodeService.getProperty(nodeRef, GameModel.PROP_G_WEAPON_NAME));
+		model.put("type", nodeService.getProperty(nodeRef, GameModel.PROP_G_WEAPON_TYPE));
+		model.put("ammo", nodeService.getProperty(nodeRef, GameModel.PROP_G_TOTAL_AMMO));
+		model.put("fireMode", nodeService.getProperty(nodeRef, GameModel.PROP_G_FIRE_MODE));
+		model.put("isBlocked", nodeService.getProperty(nodeRef, GameModel.PROP_G_IS_BLOCKED));
+		model.put("skin", nodeService.getProperty(nodeRef, GameModel.PROP_G_SKIN_NAME));
+		
+		LOG.debug("All properties added to the model");
 		
 		return model;
 	}

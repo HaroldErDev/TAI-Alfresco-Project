@@ -3,6 +3,7 @@
 	<description>Returns the new weapon</description>
 	<url>/game/weapon?name={name}&amp;type={type}&amp;ammo={ammo}&amp;fireMode={fireMode}&amp;isBlocked={isBlocked}&amp;skinName={skinName?}</url>
 	<url>/game/weapon.html?name={name}&amp;type={type}&amp;ammo={ammo}&amp;fireMode={fireMode}&amp;isBlocked={isBlocked}&amp;skinName={skinName?}</url>
+	<url>/game/weapon.json?name={name}&amp;type={type}&amp;ammo={ammo}&amp;fireMode={fireMode}&amp;isBlocked={isBlocked}&amp;skinName={skinName?}</url>
 	<format default="html">extension</format>
 	<authentication>admin</authentication>
 	<transaction>required</transaction>

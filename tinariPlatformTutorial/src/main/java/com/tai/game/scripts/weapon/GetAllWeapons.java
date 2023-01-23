@@ -47,52 +47,54 @@ public class GetAllWeapons extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get page parameter from the URI query and set the pagination
-			String pageParam = req.getParameter("page");
-			int page = (pageParam == null || pageParam.isEmpty()) ? 0 : Integer.parseInt(pageParam);
-			
-			SearchParameters sp = new SearchParameters();
-			sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
-			sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
-			sp.setQuery("TYPE:'g:weapon' AND PARENT:"+"'"+weaponsFolder+"'");
-			sp.setMaxItems(10);
-			sp.setSkipCount(page*10);
-			
-			// Find all nodes of type weapon inside the Weapons folder
-			ResultSet results = searchService.query(sp);
-			
-			// Check if the query result is not empty
-			if (results == null || results.length() == 0) {
-				status.setCode(404, "There are no weapons");
-				status.setRedirect(true);
-				
-				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			} else {
-				// Get from each node all properties and add them to the model
-				LOG.debug("Adding properties to the model (page " + page + ")...");
-				
-				for (NodeRef weaponNodeRef : results.getNodeRefs()) {
-					Map<String, Serializable> weaponProperties = new HashMap<>();
-					
-					weaponProperties.put("id", weaponNodeRef.getId());
-					weaponProperties.put("name", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_WEAPON_NAME));
-					weaponProperties.put("type", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_WEAPON_TYPE));
-					weaponProperties.put("ammo", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_TOTAL_AMMO));
-					weaponProperties.put("fireMode", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_FIRE_MODE));
-					weaponProperties.put("isBlocked", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_IS_BLOCKED));
-					weaponProperties.put("skin", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_SKIN_NAME));
-					
-					weapons.put(weaponNodeRef.getId(), weaponProperties);
-				}
-				
-				LOG.debug("All properties added to the model with success");
-			}
-			
-			// Check the existence of next and prev pages and add them to the model
-			if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.getNextPage(page));
-			if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.getPrevPage(page));
+			return model;
 		}
+		
+		// Get page parameter from the URI query and set the pagination
+		String pageParam = req.getParameter("page");
+		int page = (pageParam == null || pageParam.isEmpty()) ? 0 : Integer.parseInt(pageParam);
+		
+		SearchParameters sp = new SearchParameters();
+		sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+		sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+		sp.setQuery("TYPE:'g:weapon' AND PARENT:"+"'"+weaponsFolder+"'");
+		sp.setMaxItems(10);
+		sp.setSkipCount(page*10);
+		
+		// Find all nodes of type weapon inside the Weapons folder
+		ResultSet results = searchService.query(sp);
+		
+		// Check if the query result is not empty
+		if (results == null || results.length() == 0) {
+			status.setCode(404, "There are no weapons");
+			status.setRedirect(true);
+			
+			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+			return model;
+		}
+		
+		// Get from each node all properties and add them to the model
+		LOG.debug("Adding properties to the model (page " + page + ")...");
+		
+		for (NodeRef weaponNodeRef : results.getNodeRefs()) {
+			Map<String, Serializable> weaponProperties = new HashMap<>();
+			
+			weaponProperties.put("id", weaponNodeRef.getId());
+			weaponProperties.put("name", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_WEAPON_NAME));
+			weaponProperties.put("type", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_WEAPON_TYPE));
+			weaponProperties.put("ammo", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_TOTAL_AMMO));
+			weaponProperties.put("fireMode", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_FIRE_MODE));
+			weaponProperties.put("isBlocked", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_IS_BLOCKED));
+			weaponProperties.put("skin", nodeService.getProperty(weaponNodeRef, GameModel.PROP_G_SKIN_NAME));
+			
+			weapons.put(weaponNodeRef.getId(), weaponProperties);
+		}
+		
+		LOG.debug("All properties added to the model with success");
+		
+		// Check the existence of next and prev pages and add them to the model
+		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.getNextPage(page));
+		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.getPrevPage(page));
 		
 		// Fill the model
 		model.put("weapons", weapons);

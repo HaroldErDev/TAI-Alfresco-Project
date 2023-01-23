@@ -1,8 +1,8 @@
 <webscript>
 	<shortname>Update class</shortname>
 	<description>Returns the class updated</description>
-	<url>/game/class?id={id}</url>
-	<url>/game/class.html?id={id}</url>
+	<url>/game/class?id={id}&amp;type={type?}&amp;addOperators={addOperators?}&amp;removeOperators={removeOperators?}</url>
+	<url>/game/class.html?id={id}&amp;type={type?}&amp;addOperators={addOperators?}&amp;removeOperators={removeOperators?}</url>
 	<format default="html">extension</format>
 	<authentication>admin</authentication>
 	<transaction>required</transaction>

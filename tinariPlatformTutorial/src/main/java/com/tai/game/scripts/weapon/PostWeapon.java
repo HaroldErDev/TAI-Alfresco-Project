@@ -5,9 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.service.cmr.dictionary.Constraint;
-import org.alfresco.service.cmr.dictionary.ConstraintException;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -22,15 +19,16 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 import com.tai.game.model.GameModel;
+import com.tai.game.scripts.NodeValidator;
 
 public class PostWeapon extends DeclarativeWebScript {
 	
 	private static Log LOG = LogFactory.getLog(PostWeapon.class);
 	
 	private NodeService nodeService;
-	private DictionaryService dictionaryService;
 	private FileFolderService fileFolderService;
 	private SearchService searchService;
+	private NodeValidator nodeValidator;
 	
 	
 	@Override
@@ -39,6 +37,7 @@ public class PostWeapon extends DeclarativeWebScript {
 		
 		// Init implementations
 		Map<String, Object> model = new HashMap<>();
+		NodeValidator.setLog(LOG);
 		
 		// Get all parameters from the URI query
 		String name = req.getParameter("name");
@@ -58,33 +57,13 @@ public class PostWeapon extends DeclarativeWebScript {
 			return model;
 		}
 		
-		// Check if isBlocked parameter is setted correctly
+		// Check if blocked parameter is setted correctly
 		blocked = blocked.toLowerCase();
-		
-		if (!blocked.equals("true") && !blocked.equals("false")) {
-			status.setCode(400, "'isBlocked' is neither true or false");
-			status.setRedirect(true);
-			
-			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			return model;
-		}
-		
-		Boolean isBlocked = Boolean.parseBoolean(blocked);
-		if (skinName == null) skinName = StringUtils.EMPTY;
+		if (!nodeValidator.blockedParamIsValid(blocked, status)) return model;
 		
 		// Check if fireMode parameter is a valid constraint value
-		Constraint fireModeList = dictionaryService.getConstraint(GameModel.CONS_G_FIRE_MODE_LIST).getConstraint();
 		fireMode = fireMode.toUpperCase();
-		
-		try {
-			fireModeList.evaluate(fireMode);
-		} catch (ConstraintException e) {
-			status.setCode(400, "'"+fireMode+"'" + " is not a valid value | " + fireModeList.getParameters().entrySet().toArray()[0]);
-			status.setRedirect(true);
-			
-			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			return model;
-		}
+		if (!nodeValidator.constraintValueParamIsValid(fireMode, GameModel.CONS_G_FIRE_MODE_LIST, status)) return model;
 		
 		// Get the Weapons folder
 		NodeRef weaponsFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
@@ -99,9 +78,15 @@ public class PostWeapon extends DeclarativeWebScript {
 			return model;
 		}
 		
+		// Check if a weapon with name passed to the URI query already exists
+		if (nodeValidator.alreadyExists(weaponsFolder, name, status)) return model;
+		
 		// Create a new node of type weapon and set all properties
 		NodeRef newWeapon = fileFolderService.create(weaponsFolder, name, GameModel.TYPE_G_WEAPON).getNodeRef();
 		LOG.debug("Created new NodeRef: " + newWeapon);
+		
+		Boolean isBlocked = Boolean.parseBoolean(blocked);
+		if (skinName == null) skinName = StringUtils.EMPTY;
 		
 		Map<QName, Serializable> properties = nodeService.getProperties(newWeapon);
 		properties.put(GameModel.PROP_G_WEAPON_NAME, name);
@@ -141,8 +126,8 @@ public class PostWeapon extends DeclarativeWebScript {
 		this.nodeService = nodeService;
 	}
 
-	public void setDictionaryService(DictionaryService dictionaryService) {
-		this.dictionaryService = dictionaryService;
+	public void setNodeValidator(NodeValidator nodeValidator) {
+		this.nodeValidator = nodeValidator;
 	}
 	
 }

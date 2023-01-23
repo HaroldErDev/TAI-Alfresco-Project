@@ -19,6 +19,7 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 import com.tai.game.model.GameModel;
+import com.tai.game.scripts.NodeValidator;
 
 public class PostOperator extends DeclarativeWebScript {
 	
@@ -27,6 +28,7 @@ public class PostOperator extends DeclarativeWebScript {
 	private NodeService nodeService;
 	private FileFolderService fileFolderService;
 	private SearchService searchService;
+	private NodeValidator nodeValidator;
 	
 	
 	@Override
@@ -35,6 +37,7 @@ public class PostOperator extends DeclarativeWebScript {
 		
 		// Init implementations
 		Map<String, Object> model = new HashMap<>();
+		NodeValidator.setLog(LOG);
 		
 		// Get all parameters from the URI query
 		String name = req.getParameter("name");
@@ -55,17 +58,7 @@ public class PostOperator extends DeclarativeWebScript {
 		
 		// Check if isBlocked parameter is setted correctly
 		blocked = blocked.toLowerCase();
-		
-		if (!blocked.equals("true") && !blocked.equals("false")) {
-			status.setCode(400, "'isBlocked' is neither true or false");
-			status.setRedirect(true);
-			
-			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			return model;
-		}
-		
-		Boolean isBlocked = Boolean.parseBoolean(blocked);
-		if (skinName == null) skinName = StringUtils.EMPTY;
+		if (!nodeValidator.blockedParamIsValid(blocked, status)) return model;
 		
 		// Get the Operators folder
 		NodeRef operatorsFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
@@ -80,9 +73,15 @@ public class PostOperator extends DeclarativeWebScript {
 			return model;
 		}
 		
+		// Check if a operator with name passed to the URI query already exists
+		if (nodeValidator.alreadyExists(operatorsFolder, name, status)) return model;
+		
 		// Create a new node of type operator and set all properties
 		NodeRef newOperator = fileFolderService.create(operatorsFolder, name, GameModel.TYPE_G_OPERATOR).getNodeRef();
 		LOG.debug("Created new NodeRef: " + newOperator);
+		
+		Boolean isBlocked = Boolean.parseBoolean(blocked);
+		if (skinName == null) skinName = StringUtils.EMPTY;
 		
 		Map<QName, Serializable> properties = nodeService.getProperties(newOperator);
 		properties.put(GameModel.PROP_G_OPERATOR_NAME, name);
@@ -118,6 +117,10 @@ public class PostOperator extends DeclarativeWebScript {
 
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
+	}
+
+	public void setNodeValidator(NodeValidator nodeValidator) {
+		this.nodeValidator = nodeValidator;
 	}
 	
 }

@@ -11,6 +11,11 @@
 				<#if (operator["isBlocked"] == false)>
 					<br><strong>Skin: </strong><span>${operator["skin"]}</span>
 				</#if>
+				<#if (operator["relatedClass"]??)>
+					<br><strong>Related Class: </strong><a href="/alfresco/s/game/class?id=${operator["relatedClass"].id}">${operator["relatedClass"].type}</a>
+				<#else>
+					<br><strong>Related Class: </strong><span>NONE</span>
+				</#if>
 			</div>
 			<#if operator_has_next>
 				<hr color="black">

@@ -3,6 +3,7 @@
 	<description>Returns a list of operators</description>
 	<url>/game/operators</url>
 	<url>/game/operators.html</url>
+	<url>/game/operators.json</url>
 	<format default="html">extension</format>
 	<authentication>user</authentication>
 	<transaction>none</transaction>

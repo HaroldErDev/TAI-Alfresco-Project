@@ -63,8 +63,8 @@ public class SetBlockedFlagActionExecuter extends ActionExecuterAbstractBase {
 			nodeService.removeAspect(actionedUponNodeRef, GameModel.ASPECT_G_SKIN);
 			LOG.debug("Removed older aspect " + "'"+GameModel.ASPECT_G_SKIN.getLocalName()+"'");
 			
-			nodeService.addAspect(actionedUponNodeRef, GameModel.ASPECT_G_SKIN, null); // aspect properties will be set from behaviour
 			LOG.debug("Added new aspect " + "'"+GameModel.ASPECT_G_SKIN.getLocalName()+"'");
+			nodeService.addAspect(actionedUponNodeRef, GameModel.ASPECT_G_SKIN, null); // aspect properties will be set from behaviour
 			return;
 		}
 		
@@ -73,8 +73,8 @@ public class SetBlockedFlagActionExecuter extends ActionExecuterAbstractBase {
 			nodeService.removeAspect(actionedUponNodeRef, GameModel.ASPECT_G_SKIN);
 			LOG.debug("Removed aspect " + "'"+GameModel.ASPECT_G_SKIN.getLocalName()+"'");
 		} else if (!newIsBlocked && !hasSkinAspect) {
-			nodeService.addAspect(actionedUponNodeRef, GameModel.ASPECT_G_SKIN, null); // aspect properties will be set from behaviour
 			LOG.debug("Added aspect " + "'"+GameModel.ASPECT_G_SKIN.getLocalName()+"'");
+			nodeService.addAspect(actionedUponNodeRef, GameModel.ASPECT_G_SKIN, null); // aspect properties will be set from behaviour
 		}
 	}
 

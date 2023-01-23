@@ -1,6 +1,5 @@
 package com.tai.game.scripts.operatorClass;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,16 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.alfresco.service.cmr.dictionary.Constraint;
-import org.alfresco.service.cmr.dictionary.ConstraintException;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +30,6 @@ public class PutClass extends DeclarativeWebScript {
 	
 	private NodeService nodeService;
 	private FileFolderService fileFolderService;
-	private DictionaryService dictionaryService;
 	private FileFolderManager fileFolderManager;
 	private NodeValidator nodeValidator;
 	
@@ -61,96 +55,98 @@ public class PutClass extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get the node from id and update its properties
-			LOG.debug("Getting NodeRef from id: " + id);
-			NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
-			
-			// Validate the node
-			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR_CLASS, status)) return model;
-			
-			// Update properties
-			LOG.debug("Updating properties...");
-			Map<QName, Serializable> classProperties = nodeService.getProperties(nodeRef);
-			NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
-			
-			if (type != null && !type.isEmpty()) {
-				Constraint classList = dictionaryService.getConstraint(GameModel.CONS_G_OPERATOR_CLASS_LIST).getConstraint();
-				String typeUpperCase = type.toUpperCase();
-				String typeNormalCase = type.charAt(0)+type.substring(1).toLowerCase();
-				
-				try {
-					classList.evaluate(typeUpperCase);
-				} catch (ConstraintException e) {
-					status.setCode(400, "'"+typeUpperCase+"'" + " is not a valid value | " + classList.getParameters().entrySet()
-																													  .toArray()[0]);
-					status.setRedirect(true);
-					
-					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-					return model;
-				}
-				
-				if (fileFolderManager.findNodeByName(docLibNodeRef, typeNormalCase) != null) {
-					status.setCode(400, "The type " + "'"+typeNormalCase+"'" + " already exists");
-					status.setRedirect(true);
-					
-					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-					return model;
-				}
-				
-				try {
-					fileFolderService.rename(nodeRef, typeNormalCase);
-				} catch (FileNotFoundException e) {
-					LOG.error(e.getMessage(), e);
-					return model;
-				}
-				
-				classProperties.put(GameModel.PROP_G_CLASS_TYPE, typeUpperCase);
-				LOG.debug("New class type: " + typeUpperCase);
-			}
-			
-			// Get all operators in the association
-			List<NodeRef> operators = new ArrayList<>();
-			for (AssociationRef assocRef : nodeService.getTargetAssocs(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS)) {
-				operators.add(assocRef.getTargetRef());
-			}
-			
-			// Remove from the association the operators passed to the URI query
-			if (operatorsToRemove != null && operatorsToRemove.length != 0) {
-				List<String> toRemove = Arrays.asList(operatorsToRemove);
-				Iterator<NodeRef> iterator = operators.iterator();
-				
-				while (iterator.hasNext()) {
-					String operatorName = (String) nodeService.getProperty(iterator.next(), GameModel.PROP_G_OPERATOR_NAME);
-					
-					if (toRemove.contains(operatorName)) iterator.remove();
-				}
-			}
-			
-			// Add to the association the operators passed to the URI query
-			if (operatorsToAdd != null && operatorsToAdd.length != 0) {
-				for (String operatorName : operatorsToAdd) {
-					NodeRef operatorNodeRef = fileFolderManager.findNodeByName(docLibNodeRef, operatorName);
-					
-					if (operatorNodeRef == null) {
-						status.setCode(404, "'"+operatorName+"'" + " operator does not exists");
-						status.setRedirect(true);
-						
-						LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-						return model;
-					}
-					
-					if (!operators.contains(operatorNodeRef)) operators.add(operatorNodeRef);
-				}
-				
-				LOG.debug("New operators added to relatedOperators list");
-			}
-			
-			nodeService.setProperties(nodeRef, classProperties);
-			nodeService.setAssociations(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS, operators);
-			
-			LOG.debug("All selected properties has been updated");
+			return model;
 		}
+		
+		// Get the node from id and update its properties
+		LOG.debug("Getting NodeRef from id: " + id);
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
+		
+		// Validate the node
+		if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR_CLASS, status)) return model;
+		
+		// Update properties
+		LOG.debug("Updating properties...");
+		NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
+		
+		if (type != null && !type.isEmpty()) {
+			String typeUpperCase = type.toUpperCase();
+			String typeNormalCase = type.charAt(0)+type.substring(1).toLowerCase();
+			if (!nodeValidator.constraintValueParamIsValid(typeUpperCase, GameModel.CONS_G_OPERATOR_CLASS_LIST, status)) return model;
+			
+			NodeRef classesFolder = fileFolderManager.findNodeByName(docLibNodeRef, "Classes");
+			
+			if (classesFolder == null) {
+				status.setCode(404, "There is no 'Classes' folder");
+				status.setRedirect(true);
+					
+				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+				return model;
+			}
+			
+			if (nodeValidator.alreadyExists(classesFolder, typeNormalCase, status)) return model;
+			
+			try {
+				fileFolderService.rename(nodeRef, typeNormalCase);
+			} catch (FileNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+				return model;
+			}
+			
+			nodeService.setProperty(nodeRef, GameModel.PROP_G_CLASS_TYPE, typeUpperCase);
+			LOG.debug("New class type: " + typeUpperCase);
+		}
+		
+		// Get all operators in the association
+		List<NodeRef> operators = new ArrayList<>();
+		for (AssociationRef assocRef : nodeService.getTargetAssocs(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS)) {
+			operators.add(assocRef.getTargetRef());
+		}
+		
+		// Remove from the association the operators passed to the URI query
+		if (operatorsToRemove != null && operatorsToRemove.length != 0) {
+			List<String> toRemove = Arrays.asList(operatorsToRemove);
+			Iterator<NodeRef> iterator = operators.iterator();
+			
+			while (iterator.hasNext()) {
+				String operatorName = (String) nodeService.getProperty(iterator.next(), GameModel.PROP_G_OPERATOR_NAME);
+				
+				if (toRemove.contains(operatorName)) iterator.remove();
+			}
+		}
+		
+		// Add to the association the operators passed to the URI query
+		if (operatorsToAdd != null && operatorsToAdd.length != 0) {
+			NodeRef operatorsFolder = fileFolderManager.findNodeByName(docLibNodeRef, "Operators");
+			
+			if (operatorsFolder == null) {
+				status.setCode(404, "There is no 'Operators' folder");
+				status.setRedirect(true);
+					
+				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+				return model;
+			}
+			
+			for (String operatorName : operatorsToAdd) {
+				NodeRef operatorNodeRef = fileFolderService.searchSimple(operatorsFolder, operatorName);
+				
+				if (operatorNodeRef == null) {
+					status.setCode(404, "'"+operatorName+"'" + " operator does not exists");
+					status.setRedirect(true);
+					
+					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+					return model;
+				}
+				
+				if (!operators.contains(operatorNodeRef)) operators.add(operatorNodeRef);
+			}
+			
+			LOG.debug("New operators added to relatedOperators list");
+		}
+		
+		nodeService.setAssociations(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS, operators);
+		
+		LOG.debug("All selected properties has been updated");
 		
 		// Fill the model
 		model.put("id", id);
@@ -160,10 +156,6 @@ public class PutClass extends DeclarativeWebScript {
 	
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
-	}
-
-	public void setDictionaryService(DictionaryService dictionaryService) {
-		this.dictionaryService = dictionaryService;
 	}
 
 	public void setFileFolderManager(FileFolderManager fileFolderManager) {

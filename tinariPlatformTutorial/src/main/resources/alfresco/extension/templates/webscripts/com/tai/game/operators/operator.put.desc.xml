@@ -1,8 +1,8 @@
 <webscript>
 	<shortname>Update operator</shortname>
 	<description>Returns the operator updated</description>
-	<url>/game/operator?id={id}</url>
-	<url>/game/operator.html?id={id}</url>
+	<url>/game/operator?id={id}&amp;name={name?}&amp;nationality={nationality?}&amp;ability={ability?}</url>
+	<url>/game/operator.html?id={id}&amp;name={name?}&amp;nationality={nationality?}&amp;ability={ability?}</url>
 	<format default="html">extension</format>
 	<authentication>admin</authentication>
 	<transaction>required</transaction>

@@ -3,6 +3,7 @@
 	<description>Returns a list of classes</description>
 	<url>/game/classes</url>
 	<url>/game/classes.html</url>
+	<url>/game/classes.json</url>
 	<format default="html">extension</format>
 	<authentication>user</authentication>
 	<transaction>none</transaction>

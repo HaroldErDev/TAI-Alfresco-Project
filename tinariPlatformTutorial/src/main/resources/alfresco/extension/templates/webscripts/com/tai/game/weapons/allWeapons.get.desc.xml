@@ -3,6 +3,7 @@
 	<description>Returns a list of weapons</description>
 	<url>/game/weapons</url>
 	<url>/game/weapons.html</url>
+	<url>/game/weapons.json</url>
 	<format default="html">extension</format>
 	<authentication>user</authentication>
 	<transaction>none</transaction>

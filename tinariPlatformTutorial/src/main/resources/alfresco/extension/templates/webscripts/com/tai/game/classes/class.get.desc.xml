@@ -3,6 +3,7 @@
 	<description>Returns the class by its id</description>
 	<url>/game/class?id={id}</url>
 	<url>/game/class.html?id={id}</url>
+	<url>/game/class.json?id={id}</url>
 	<format default="html">extension</format>
 	<authentication>user</authentication>
 	<transaction>none</transaction>

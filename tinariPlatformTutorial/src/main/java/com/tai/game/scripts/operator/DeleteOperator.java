@@ -40,18 +40,19 @@ public class DeleteOperator extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get the node from id and delete it from repository
-			LOG.debug("Getting NodeRef from id: " + id);
-			NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
-			
-			// Validate the node
-			if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR, status)) return model;
-			
-			// Delete node from repository
-			fileFolderService.delete(nodeRef);
-			LOG.debug("'"+nodeRef+"'" + " was successfully deleted");
+			return model;
 		}
+		
+		// Get the node from id and delete it from repository
+		LOG.debug("Getting NodeRef from id: " + id);
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
+		
+		// Validate the node
+		if (!nodeValidator.validate(nodeRef, GameModel.TYPE_G_OPERATOR, status)) return model;
+		
+		// Delete node from repository
+		fileFolderService.delete(nodeRef);
+		LOG.debug("'"+nodeRef+"'" + " was successfully deleted");
 		
 		// Fill the model
 		model.put("id", id);

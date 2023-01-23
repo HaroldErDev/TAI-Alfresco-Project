@@ -1,9 +1,10 @@
 package com.tai.game.scripts.operator;
 
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -46,51 +47,62 @@ public class GetAllOperators extends DeclarativeWebScript {
 			status.setRedirect(true);
 			
 			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-		} else {
-			// Get page parameter from the URI query and set the pagination
-			String pageParam = req.getParameter("page");
-			int page = (pageParam == null || pageParam.isEmpty()) ? 0 : Integer.parseInt(pageParam);
+			return model;
+		}
+		
+		// Get page parameter from the URI query and set the pagination
+		String pageParam = req.getParameter("page");
+		int page = (pageParam == null || pageParam.isEmpty()) ? 0 : Integer.parseInt(pageParam);
+		
+		// Find all nodes of type operator inside the Operators folder
+		SearchParameters sp = new SearchParameters();
+		sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+		sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+		sp.setQuery("TYPE:'g:operator' AND PARENT:"+"'"+operatorsFolder+"'");
+		sp.setMaxItems(10);
+		sp.setSkipCount(page*10);
+		
+		ResultSet results = searchService.query(sp);
+		
+		// Check if the query result is not empty
+		if (results == null || results.length() == 0) {
+			status.setCode(404, "There are no operators");
+			status.setRedirect(true);
 			
-			SearchParameters sp = new SearchParameters();
-			sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
-			sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
-			sp.setQuery("TYPE:'g:operator' AND PARENT:"+"'"+operatorsFolder+"'");
-			sp.setMaxItems(10);
-			sp.setSkipCount(page*10);
+			LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+			return model;
+		}
+		
+		// Get from each node all properties and add them to the model
+		LOG.debug("Adding properties to the model (page "+page+")...");
+		
+		for (NodeRef operatorNodeRef : results.getNodeRefs()) {
+			Map<String, Object> operatorProperties = new HashMap<>();
 			
-			// Find all nodes of type operator inside the Operators folder
-			ResultSet results = searchService.query(sp);
-			
-			// Check if the query result is not empty
-			if (results == null || results.length() == 0) {
-				status.setCode(404, "There are no operators");
-				status.setRedirect(true);
+			List<AssociationRef> assocRefs = nodeService.getSourceAssocs(operatorNodeRef, GameModel.ASSOC_G_RELATED_OPERATORS);
+			if (!assocRefs.isEmpty()) {
+				NodeRef operatorClass = assocRefs.get(0).getSourceRef();
 				
-				LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
-			} else {
-				// Get from each node all properties and add them to the model
-				LOG.debug("Adding properties to the model (page " + page + ")...");
-				
-				for (NodeRef operatorNodeRef : results.getNodeRefs()) {
-					Map<String, Serializable> operatorProperties = new HashMap<>();
-					
-					operatorProperties.put("id", operatorNodeRef.getId());
-					operatorProperties.put("name", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_OPERATOR_NAME));
-					operatorProperties.put("nationality", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_NATIONALITY));
-					operatorProperties.put("ability", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_SPECIAL_ABILITY));
-					operatorProperties.put("isBlocked", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_IS_BLOCKED));
-					operatorProperties.put("skin", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_SKIN_NAME));
-						
-					operators.put(operatorNodeRef.getId(), operatorProperties);
-				}
-				
-				LOG.debug("All properties added to the model with success");
+				operatorProperties.put("relatedClass", new ClassInfo(operatorClass.getId(), 
+																	 (String) nodeService.getProperty(operatorClass, 
+																			 						  GameModel.PROP_G_CLASS_TYPE)));
 			}
 			
-			// Check the existence of next and prev pages and add them to the model
-			if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.getNextPage(page));
-			if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.getPrevPage(page));
+			operatorProperties.put("id", operatorNodeRef.getId());
+			operatorProperties.put("name", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_OPERATOR_NAME));
+			operatorProperties.put("nationality", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_NATIONALITY));
+			operatorProperties.put("ability", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_SPECIAL_ABILITY));
+			operatorProperties.put("isBlocked", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_IS_BLOCKED));
+			operatorProperties.put("skin", nodeService.getProperty(operatorNodeRef, GameModel.PROP_G_SKIN_NAME));
+				
+			operators.put(operatorNodeRef.getId(), operatorProperties);
 		}
+		
+		LOG.debug("All properties added to the model with success");
+		
+		// Check the existence of next and prev pages and add them to the model
+		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.getNextPage(page));
+		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.getPrevPage(page));
 		
 		// Fill the model
 		model.put("operators", operators);
