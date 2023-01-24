@@ -1,5 +1,6 @@
 package com.tai.game.scripts.weapon;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
@@ -62,6 +64,7 @@ public class PutWeapon extends DeclarativeWebScript {
 			
 		// Update properties
 		LOG.debug("Updating properties...");
+		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 		
 		if (name != null && !name.isEmpty()) {
 			NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(nodeRef), "Weapons");
@@ -76,24 +79,17 @@ public class PutWeapon extends DeclarativeWebScript {
 			
 			if (nodeValidator.alreadyExists(weaponsFolder, name, status)) return model;
 			
-			try {
-				fileFolderService.rename(nodeRef, name);
-			} catch (FileNotFoundException e) {
-				LOG.error(e.getMessage(), e);
-				return model;
-			}
-			
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_WEAPON_NAME, name);
+			properties.put(GameModel.PROP_G_WEAPON_NAME, name);
 			LOG.debug("New weapon name: " + name);
 		}
 		
 		if (type != null && !type.isEmpty()) {
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_WEAPON_TYPE, type);
+			properties.put(GameModel.PROP_G_WEAPON_TYPE, type);
 			LOG.debug("New weapon type: " + type);
 		}
 		
 		if (ammo != null && !ammo.isEmpty()) {
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_TOTAL_AMMO, ammo);
+			properties.put(GameModel.PROP_G_TOTAL_AMMO, ammo);
 			LOG.debug("New weapon ammo: " + ammo);
 		}
 		
@@ -101,8 +97,21 @@ public class PutWeapon extends DeclarativeWebScript {
 			fireMode = fireMode.toUpperCase();
 			if (!nodeValidator.constraintValueParamIsValid(fireMode, GameModel.CONS_G_FIRE_MODE_LIST, status)) return model;
 			
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_FIRE_MODE, fireMode);
+			properties.put(GameModel.PROP_G_FIRE_MODE, fireMode);
 			LOG.debug("New weapon fire mode: " + fireMode);
+		}
+		
+		// Set properties
+		nodeService.setProperties(nodeRef, properties);
+		
+		// Raname node if has been changed
+		if (name != null && !name.isEmpty()) {
+			try {
+				fileFolderService.rename(nodeRef, name);
+			} catch (FileNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+				return model;
+			}
 		}
 		
 		LOG.debug("All selected properties has been updated");

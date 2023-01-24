@@ -1,5 +1,6 @@
 package com.tai.game.scripts.operator;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
@@ -61,6 +63,7 @@ public class PutOperator extends DeclarativeWebScript {
 		
 		// Update properties
 		LOG.debug("Updating properties...");
+		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 		
 		if (name != null && !name.isEmpty()) {
 			NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(nodeRef), "Operators");
@@ -75,25 +78,31 @@ public class PutOperator extends DeclarativeWebScript {
 			
 			if (nodeValidator.alreadyExists(operatorsFolder, name, status)) return model;
 			
+			properties.put(GameModel.PROP_G_OPERATOR_NAME, name);
+			LOG.debug("New operator name: " + name);
+		}
+		
+		if (nationality != null && !nationality.isEmpty()) {
+			properties.put(GameModel.PROP_G_NATIONALITY, nationality);
+			LOG.debug("New operator nationality: " + nationality);
+		}
+		
+		if (ability != null && !ability.isEmpty()) {
+			properties.put(GameModel.PROP_G_SPECIAL_ABILITY, ability);
+			LOG.debug("New operator ability: " + ability);
+		}
+		
+		// Set properties
+		nodeService.setProperties(nodeRef, properties);
+		
+		// Raname node if has been changed
+		if (name != null && !name.isEmpty()) {
 			try {
 				fileFolderService.rename(nodeRef, name);
 			} catch (FileNotFoundException e) {
 				LOG.error(e.getMessage(), e);
 				return model;
 			}
-			
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_OPERATOR_NAME, name);
-			LOG.debug("New operator name: " + name);
-		}
-		
-		if (nationality != null && !nationality.isEmpty()) {
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_NATIONALITY, nationality);
-			LOG.debug("New operator nationality: " + nationality);
-		}
-		
-		if (ability != null && !ability.isEmpty()) {
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_SPECIAL_ABILITY, ability);
-			LOG.debug("New operator ability: " + ability);
 		}
 		
 		LOG.debug("All selected properties has been updated");

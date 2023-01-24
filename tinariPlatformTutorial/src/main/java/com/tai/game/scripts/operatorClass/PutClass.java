@@ -1,5 +1,6 @@
 package com.tai.game.scripts.operatorClass;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +14,8 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,8 +49,9 @@ public class PutClass extends DeclarativeWebScript {
 		// Get all parameters from the URI query
 		String id = req.getParameter("id");
 		String type = req.getParameter("type");
-		String[] operatorsToAdd = StringUtils.split(req.getParameter("addOperators"), ",");
-		String[] operatorsToRemove = StringUtils.split(req.getParameter("removeOperators"), ",");
+		String[] operatorsToAdd = StringUtils.split(RegExUtils.replaceAll(req.getParameter("addOperators"), "\\s", StringUtils.EMPTY), ",");
+		String[] operatorsToRemove = StringUtils.split(RegExUtils.replaceAll(req.getParameter("removeOperators"), "\\s", StringUtils.EMPTY), 
+				  									   ",");
 		
 		// Check if the id parameter was passed to the URI query
 		if (id == null || id.isEmpty()) {
@@ -67,6 +71,7 @@ public class PutClass extends DeclarativeWebScript {
 		
 		// Update properties
 		LOG.debug("Updating properties...");
+		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 		NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
 		
 		if (type != null && !type.isEmpty()) {
@@ -86,14 +91,7 @@ public class PutClass extends DeclarativeWebScript {
 			
 			if (nodeValidator.alreadyExists(classesFolder, typeNormalCase, status)) return model;
 			
-			try {
-				fileFolderService.rename(nodeRef, typeNormalCase);
-			} catch (FileNotFoundException e) {
-				LOG.error(e.getMessage(), e);
-				return model;
-			}
-			
-			nodeService.setProperty(nodeRef, GameModel.PROP_G_CLASS_TYPE, typeUpperCase);
+			properties.put(GameModel.PROP_G_CLASS_TYPE, typeUpperCase);
 			LOG.debug("New class type: " + typeUpperCase);
 		}
 		
@@ -144,7 +142,19 @@ public class PutClass extends DeclarativeWebScript {
 			LOG.debug("New operators added to relatedOperators list");
 		}
 		
+		// Set properties
+		nodeService.setProperties(nodeRef, properties);
 		nodeService.setAssociations(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS, operators);
+		
+		// Raname node if has been changed
+		if (type != null && !type.isEmpty()) {
+			try {
+				fileFolderService.rename(nodeRef, type.charAt(0)+type.substring(1).toLowerCase());
+			} catch (FileNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+				return model;
+			}
+		}
 		
 		LOG.debug("All selected properties has been updated");
 		

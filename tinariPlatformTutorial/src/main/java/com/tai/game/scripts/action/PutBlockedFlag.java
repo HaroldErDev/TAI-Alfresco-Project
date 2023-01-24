@@ -90,6 +90,11 @@ public class PutBlockedFlag extends DeclarativeWebScript {
 		LOG.debug(SetBlockedFlagActionExecuter.NAME + " action executed with success");
 		
 		// Fill the model
+		if (nodeService.getType(nodeRef).equals(GameModel.TYPE_G_OPERATOR)) {
+			model.put("uri", "/alfresco/s/game/operator.html?id="+nodeRef.getId());
+		} else if (nodeService.getType(nodeRef).equals(GameModel.TYPE_G_WEAPON)) {
+			model.put("uri", "/alfresco/s/game/weapon.html?id="+nodeRef.getId());
+		}
 		model.put("blockedParam", blockedParam);
 		model.put("id", id);
 		

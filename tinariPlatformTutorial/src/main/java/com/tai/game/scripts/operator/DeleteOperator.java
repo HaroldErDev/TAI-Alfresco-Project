@@ -43,7 +43,7 @@ public class DeleteOperator extends DeclarativeWebScript {
 			return model;
 		}
 		
-		// Get the node from id and delete it from repository
+		// Get the node from id
 		LOG.debug("Getting NodeRef from id: " + id);
 		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, id);
 		

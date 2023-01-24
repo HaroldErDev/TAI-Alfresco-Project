@@ -18,6 +18,7 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
+import com.tai.game.manager.FileFolderManager;
 import com.tai.game.model.GameModel;
 
 public class GetAllClasses extends DeclarativeWebScript {
@@ -26,6 +27,7 @@ public class GetAllClasses extends DeclarativeWebScript {
 	
 	private NodeService nodeService;
 	private SearchService searchService;
+	private FileFolderManager fileFolderManager;
 	
 	
 	@Override
@@ -36,10 +38,8 @@ public class GetAllClasses extends DeclarativeWebScript {
 		Map<String, Object> model = new HashMap<>();
 		Map<String, Object> classes = new HashMap<>();
 		
-		// Find Classes folder and return its node reference
-		NodeRef classesFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
-													SearchService.LANGUAGE_FTS_ALFRESCO, 
-													"TYPE:'cm:folder' AND cm:name:'Classes'").getNodeRef(0);
+		// Check the existence of the Classes folder and get its node reference
+		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Classes");
 		
 		// Check if the folder exists
 		if (classesFolder == null) {
@@ -94,9 +94,13 @@ public class GetAllClasses extends DeclarativeWebScript {
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
 	}
-
+	
 	public void setSearchService(SearchService searchService) {
 		this.searchService = searchService;
+	}
+
+	public void setFileFolderManager(FileFolderManager fileFolderManager) {
+		this.fileFolderManager = fileFolderManager;
 	}
 	
 }

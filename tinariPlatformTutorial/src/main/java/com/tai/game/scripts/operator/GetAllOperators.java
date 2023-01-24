@@ -17,6 +17,7 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
+import com.tai.game.manager.FileFolderManager;
 import com.tai.game.manager.PaginationManager;
 import com.tai.game.model.GameModel;
 
@@ -24,8 +25,11 @@ public class GetAllOperators extends DeclarativeWebScript {
 	
 	private static Log LOG = LogFactory.getLog(GetAllOperators.class);
 	
+	public static final int MAX_ITEMS = 10;
+	
 	private NodeService nodeService;
 	private SearchService searchService;
+	private FileFolderManager fileFolderManager;
 	private PaginationManager paginationManager;
 	
 	
@@ -37,11 +41,10 @@ public class GetAllOperators extends DeclarativeWebScript {
 		Map<String, Object> model = new HashMap<>();
 		Map<String, Object> operators = new HashMap<>();
 		
-		// Check the existence of the Operators folder and return its node reference
-		NodeRef operatorsFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
-													  SearchService.LANGUAGE_FTS_ALFRESCO, 
-													  "TYPE:'cm:folder' AND cm:name:'Operators'").getNodeRef(0);
+		// Check the existence of the Operators folder and get its node reference
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Operators");
 		
+		// Check if the folder exists
 		if (operatorsFolder == null) {
 			status.setCode(404, "'Operators' folder was not found");
 			status.setRedirect(true);
@@ -59,8 +62,8 @@ public class GetAllOperators extends DeclarativeWebScript {
 		sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
 		sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
 		sp.setQuery("TYPE:'g:operator' AND PARENT:"+"'"+operatorsFolder+"'");
-		sp.setMaxItems(10);
-		sp.setSkipCount(page*10);
+		sp.setMaxItems(MAX_ITEMS);
+		sp.setSkipCount(page*MAX_ITEMS);
 		
 		ResultSet results = searchService.query(sp);
 		
@@ -101,8 +104,8 @@ public class GetAllOperators extends DeclarativeWebScript {
 		LOG.debug("All properties added to the model with success");
 		
 		// Check the existence of next and prev pages and add them to the model
-		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.getNextPage(page));
-		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.getPrevPage(page));
+		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.constructUriNextPage("operators.html", page));
+		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.constructUriPrevPage("operators.html", page));
 		
 		// Fill the model
 		model.put("operators", operators);
@@ -116,6 +119,10 @@ public class GetAllOperators extends DeclarativeWebScript {
 
 	public void setSearchService(SearchService searchService) {
 		this.searchService = searchService;
+	}
+	
+	public void setFileFolderManager(FileFolderManager fileFolderManager) {
+		this.fileFolderManager = fileFolderManager;
 	}
 
 	public void setPaginationManager(PaginationManager paginationManager) {

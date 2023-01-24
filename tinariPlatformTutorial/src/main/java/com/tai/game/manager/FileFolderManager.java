@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,10 +26,15 @@ public class FileFolderManager {
 	
 	protected NodeService nodeService;
 	protected FileFolderService fileFolderService;
+	protected SiteService siteService;
 	
 	
 	public static void setLog(Log logger) {
 		LOG = logger;
+	}
+	
+	public NodeRef getDocLibNodeRefFromSite() {
+		return siteService.getContainer("Tutorial-Tinari", SiteService.DOCUMENT_LIBRARY);
 	}
 	
 	public NodeRef getDocLibNodeRef(NodeRef nodeToStartSearch) {
@@ -130,6 +136,10 @@ public class FileFolderManager {
 
 	public void setFileFolderService(FileFolderService fileFolderService) {
 		this.fileFolderService = fileFolderService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 	
 }

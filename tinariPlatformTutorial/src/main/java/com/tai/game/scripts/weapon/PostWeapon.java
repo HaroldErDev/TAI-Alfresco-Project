@@ -8,8 +8,6 @@ import java.util.Map;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -18,6 +16,7 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
+import com.tai.game.manager.FileFolderManager;
 import com.tai.game.model.GameModel;
 import com.tai.game.scripts.NodeValidator;
 
@@ -27,7 +26,7 @@ public class PostWeapon extends DeclarativeWebScript {
 	
 	private NodeService nodeService;
 	private FileFolderService fileFolderService;
-	private SearchService searchService;
+	private FileFolderManager fileFolderManager;
 	private NodeValidator nodeValidator;
 	
 	
@@ -66,9 +65,7 @@ public class PostWeapon extends DeclarativeWebScript {
 		if (!nodeValidator.constraintValueParamIsValid(fireMode, GameModel.CONS_G_FIRE_MODE_LIST, status)) return model;
 		
 		// Get the Weapons folder
-		NodeRef weaponsFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
-													SearchService.LANGUAGE_FTS_ALFRESCO, 
-													"TYPE:'cm:folder' AND cm:name:'Weapons'").getNodeRef(0);
+		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Weapons");
 		
 		if (weaponsFolder == null) {
 			status.setCode(404, "There is no 'Weapons' folder");
@@ -114,16 +111,16 @@ public class PostWeapon extends DeclarativeWebScript {
 		return model;
 	}
 	
-	public void setSearchService(SearchService searchService) {
-		this.searchService = searchService;
-	}
-	
 	public void setFileFolderService(FileFolderService fileFolderService) {
 		this.fileFolderService = fileFolderService;
 	}
 
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
+	}
+	
+	public void setFileFolderManager(FileFolderManager fileFolderManager) {
+		this.fileFolderManager = fileFolderManager;
 	}
 
 	public void setNodeValidator(NodeValidator nodeValidator) {

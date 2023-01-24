@@ -16,6 +16,7 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
+import com.tai.game.manager.FileFolderManager;
 import com.tai.game.manager.PaginationManager;
 import com.tai.game.model.GameModel;
 
@@ -23,8 +24,11 @@ public class GetAllWeapons extends DeclarativeWebScript {
 	
 	private static Log LOG = LogFactory.getLog(GetAllWeapons.class);
 	
+	public static final int MAX_ITEMS = 10;
+	
 	private NodeService nodeService;
 	private SearchService searchService;
+	private FileFolderManager fileFolderManager;
 	private PaginationManager paginationManager;
 	
 	
@@ -36,10 +40,8 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		Map<String, Object> model = new HashMap<>();
 		Map<String, Object> weapons = new HashMap<>();
 		
-		// Check the existence of the Weapons folder and return its node reference
-		NodeRef weaponsFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
-				  									SearchService.LANGUAGE_FTS_ALFRESCO, 
-				  									"TYPE:'cm:folder' AND cm:name:'Weapons'").getNodeRef(0);
+		// Check the existence of the Weapons folder and get its node reference
+		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Weapons");
 		
 		// Check if the folder exists
 		if (weaponsFolder == null) {
@@ -54,14 +56,14 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		String pageParam = req.getParameter("page");
 		int page = (pageParam == null || pageParam.isEmpty()) ? 0 : Integer.parseInt(pageParam);
 		
+		// Find all nodes of type weapon inside the Weapons folder
 		SearchParameters sp = new SearchParameters();
 		sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
 		sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
 		sp.setQuery("TYPE:'g:weapon' AND PARENT:"+"'"+weaponsFolder+"'");
-		sp.setMaxItems(10);
-		sp.setSkipCount(page*10);
+		sp.setMaxItems(MAX_ITEMS);
+		sp.setSkipCount(page*MAX_ITEMS);
 		
-		// Find all nodes of type weapon inside the Weapons folder
 		ResultSet results = searchService.query(sp);
 		
 		// Check if the query result is not empty
@@ -74,7 +76,7 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		}
 		
 		// Get from each node all properties and add them to the model
-		LOG.debug("Adding properties to the model (page " + page + ")...");
+		LOG.debug("Adding properties to the model (page "+page+")...");
 		
 		for (NodeRef weaponNodeRef : results.getNodeRefs()) {
 			Map<String, Serializable> weaponProperties = new HashMap<>();
@@ -93,8 +95,8 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		LOG.debug("All properties added to the model with success");
 		
 		// Check the existence of next and prev pages and add them to the model
-		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.getNextPage(page));
-		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.getPrevPage(page));
+		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.constructUriNextPage("weapons.html", page));
+		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.constructUriPrevPage("weapons.html", page));
 		
 		// Fill the model
 		model.put("weapons", weapons);
@@ -108,6 +110,10 @@ public class GetAllWeapons extends DeclarativeWebScript {
 
 	public void setSearchService(SearchService searchService) {
 		this.searchService = searchService;
+	}
+	
+	public void setFileFolderManager(FileFolderManager fileFolderManager) {
+		this.fileFolderManager = fileFolderManager;
 	}
 
 	public void setPaginationManager(PaginationManager paginationManager) {

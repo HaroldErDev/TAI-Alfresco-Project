@@ -22,13 +22,13 @@
 		
 		<#if prevPage??>
 			<span>
-				<a href="/alfresco/s/game/weapons.html?page=${prevPage}">Previous Page</a>
+				<a href="${prevPage}">Previous Page</a>
 				&emsp;
 			</span>
 		</#if>
 		<#if nextPage??>
 			<span>
-				<a href="/alfresco/s/game/weapons.html?page=${nextPage}">Next Page</a>
+				<a href="${nextPage}">Next Page</a>
 			</span>
 		</#if>
 	</body>

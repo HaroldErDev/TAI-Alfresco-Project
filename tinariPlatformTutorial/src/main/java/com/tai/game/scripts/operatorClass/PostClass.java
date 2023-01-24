@@ -10,9 +10,8 @@ import java.util.Map;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +29,6 @@ public class PostClass extends DeclarativeWebScript {
 	
 	private NodeService nodeService;
 	private FileFolderService fileFolderService;
-	private SearchService searchService;
 	private FileFolderManager fileFolderManager;
 	private NodeValidator nodeValidator;
 	
@@ -45,7 +43,8 @@ public class PostClass extends DeclarativeWebScript {
 		
 		// Get all parameters from the URI query
 		String type = req.getParameter("type");
-		String[] relatedOperators = StringUtils.split(req.getParameter("relatedOperators"), ",");
+		String[] relatedOperators = StringUtils.split(RegExUtils.replaceAll(req.getParameter("relatedOperators"), "\\s", StringUtils.EMPTY), 
+													  ",");
 		
 		if (type == null || type.isEmpty()) {
 			status.setCode(400, "Required parameters has not been provided");
@@ -61,9 +60,7 @@ public class PostClass extends DeclarativeWebScript {
 		if (!nodeValidator.constraintValueParamIsValid(typeUpperCase, GameModel.CONS_G_OPERATOR_CLASS_LIST, status)) return model;
 		
 		// Get the Classes folder
-		NodeRef classesFolder = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, 
-													SearchService.LANGUAGE_FTS_ALFRESCO, 
-													"TYPE:'cm:folder' AND cm:name:'Classes'").getNodeRef(0);
+		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Classes");
 		
 		if (classesFolder == null) {
 			status.setCode(404, "There is no 'Classes' folder");
@@ -102,6 +99,14 @@ public class PostClass extends DeclarativeWebScript {
 					return model;
 				}
 				
+				if (nodeService.getSourceAssocs(operatorNodeRef, GameModel.ASSOC_G_RELATED_OPERATORS).size() > 0) {
+					status.setCode(400, "'"+operatorName+"'" + " operator is already part of another association");
+					status.setRedirect(true);
+					
+					LOG.error("Status Code " + status.getCode() + ": " + status.getMessage());
+					return model;
+				}
+				
 				if (!operators.contains(operatorNodeRef)) operators.add(operatorNodeRef);
 			}
 		}
@@ -123,10 +128,6 @@ public class PostClass extends DeclarativeWebScript {
 		model.put("relatedOperators", (relatedOperators == null) ? Collections.EMPTY_LIST : relatedOperators);
 		
 		return model;
-	}
-	
-	public void setSearchService(SearchService searchService) {
-		this.searchService = searchService;
 	}
 	
 	public void setFileFolderService(FileFolderService fileFolderService) {

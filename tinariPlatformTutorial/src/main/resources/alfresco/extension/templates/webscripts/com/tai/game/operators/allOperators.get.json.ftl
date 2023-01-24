@@ -1,4 +1,3 @@
-<#assign uri="/alfresco/s/game/operators.json">
 {
 	"Operators" : [
 		<#list operators?values as operator>
@@ -25,14 +24,14 @@
 	
 	"Links" : {
 		<#if prevPage?? && nextPage??>
-			"prev" : "${uri}?page=${prevPage}",
-			"next" : "${uri}?page=${nextPage}"
+			"prev" : "${prevPage}",
+			"next" : "${nextPage}"
 		<#else>
 			<#if prevPage??>
-				"prev" : "${uri}?page=${prevPage}"
+				"prev" : "${prevPage}"
 			</#if>
 			<#if nextPage??>
-				"next" : "${uri}?page=${nextPage}"
+				"next" : "${nextPage}"
 			</#if>
 		</#if>
 	}

@@ -28,6 +28,9 @@
     	<property name="fileFolderService">
     		<ref bean="FileFolderService" />
     	</property>
+    	<property name="siteService">
+    		<ref bean="SiteService" />
+    	</property>
     </bean>
     
     <bean id="PaginationManager" class="com.tai.game.manager.PaginationManager" />
@@ -96,6 +99,9 @@
     	<property name="searchService">
     		<ref bean="SearchService" />
     	</property>
+    	<property name="fileFolderManager">
+    		<ref bean="FileFolderManager" />
+    	</property>
     	<property name="paginationManager">
     		<ref bean="PaginationManager" />
     	</property>
@@ -108,6 +114,9 @@
     	<property name="searchService">
     		<ref bean="SearchService" />
     	</property>
+    	<property name="fileFolderManager">
+    		<ref bean="FileFolderManager" />
+    	</property>
     	<property name="paginationManager">
     		<ref bean="PaginationManager" />
     	</property>
@@ -119,6 +128,9 @@
     	</property>
     	<property name="searchService">
     		<ref bean="SearchService" />
+    	</property>
+    	<property name="fileFolderManager">
+    		<ref bean="FileFolderManager" />
     	</property>
 	</bean>
 	
@@ -151,14 +163,14 @@
 	
 	<!-- POST (Create) Web Scripts -->
 	<bean id="webscript.com.tai.game.weapons.weapon.post" class="com.tai.game.scripts.weapon.PostWeapon" parent="webscript">
-    	<property name="searchService">
-    		<ref bean="SearchService" />
-    	</property>
     	<property name="fileFolderService">
     		<ref bean="FileFolderService" />
     	</property>
     	<property name="nodeService">
     		<ref bean="NodeService" />
+    	</property>
+    	<property name="fileFolderManager">
+    		<ref bean="FileFolderManager" />
     	</property>
     	<property name="nodeValidator">
     		<ref bean="NodeValidator" />
@@ -166,14 +178,14 @@
 	</bean>
 	
 	<bean id="webscript.com.tai.game.operators.operator.post" class="com.tai.game.scripts.operator.PostOperator" parent="webscript">
-    	<property name="searchService">
-    		<ref bean="SearchService" />
-    	</property>
     	<property name="fileFolderService">
     		<ref bean="FileFolderService" />
     	</property>
     	<property name="nodeService">
     		<ref bean="NodeService" />
+    	</property>
+    	<property name="fileFolderManager">
+    		<ref bean="FileFolderManager" />
     	</property>
     	<property name="nodeValidator">
     		<ref bean="NodeValidator" />
@@ -181,9 +193,6 @@
 	</bean>
 	
 	<bean id="webscript.com.tai.game.classes.class.post" class="com.tai.game.scripts.operatorClass.PostClass" parent="webscript">
-    	<property name="searchService">
-    		<ref bean="SearchService" />
-    	</property>
     	<property name="fileFolderService">
     		<ref bean="FileFolderService" />
     	</property>
