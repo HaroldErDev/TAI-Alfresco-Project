@@ -39,7 +39,7 @@ public class GetAllClasses extends DeclarativeWebScript {
 		Map<String, Object> classes = new HashMap<>();
 		
 		// Check the existence of the Classes folder and get its node reference
-		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Classes");
+		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Classes");
 		
 		// Check if the folder exists
 		if (classesFolder == null) {

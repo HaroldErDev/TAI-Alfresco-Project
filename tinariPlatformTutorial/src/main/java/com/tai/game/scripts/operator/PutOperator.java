@@ -66,7 +66,7 @@ public class PutOperator extends DeclarativeWebScript {
 		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 		
 		if (name != null && !name.isEmpty()) {
-			NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(nodeRef), "Operators");
+			NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
 			
 			if (operatorsFolder == null) {
 				status.setCode(404, "There is no 'Operators' folder");

@@ -2,7 +2,6 @@ package com.tai.game.scripts.operatorClass;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,8 +41,7 @@ public class PostClass extends DeclarativeWebScript {
 		
 		// Get all parameters from the URI query
 		String type = req.getParameter("type");
-		String[] relatedOperators = StringUtils.split(RegExUtils.replaceAll(req.getParameter("relatedOperators"), "\\s", StringUtils.EMPTY), 
-													  ",");
+		String fullRelatedOperators = req.getParameter("relatedOperators");
 		
 		if (type == null || type.isEmpty()) {
 			status.setCode(400, "Required parameters has not been provided");
@@ -60,7 +57,7 @@ public class PostClass extends DeclarativeWebScript {
 		if (!nodeValidator.constraintValueParamIsValid(typeUpperCase, GameModel.CONS_G_OPERATOR_CLASS_LIST, status)) return model;
 		
 		// Get the Classes folder
-		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Classes");
+		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Classes");
 		
 		if (classesFolder == null) {
 			status.setCode(404, "There is no 'Classes' folder");
@@ -74,7 +71,7 @@ public class PostClass extends DeclarativeWebScript {
 		if (nodeValidator.alreadyExists(classesFolder, typeNormalCase, status)) return model;
 		
 		// Get the Operators folder
-		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(classesFolder), "Operators");
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
 		
 		if (operatorsFolder == null) {
 			status.setCode(404, "There is no 'Operators' folder");
@@ -86,8 +83,12 @@ public class PostClass extends DeclarativeWebScript {
 		
 		// Check if related operators exists in the repository and add them to the operators list
 		List<NodeRef> operators = new ArrayList<>();
+		String[] relatedOperators = {};
 		
-		if (relatedOperators != null) {
+		if (fullRelatedOperators != null && !fullRelatedOperators.isEmpty()) {
+			String fixedRelatedOperators = fullRelatedOperators.replaceAll(",{2,}", ",").replaceAll("^,|,$", StringUtils.EMPTY);
+			relatedOperators = StringUtils.split(fixedRelatedOperators, ",");
+			
 			for (String operatorName : relatedOperators) {
 				NodeRef operatorNodeRef = fileFolderService.searchSimple(operatorsFolder, operatorName);
 				
@@ -107,7 +108,7 @@ public class PostClass extends DeclarativeWebScript {
 					return model;
 				}
 				
-				if (!operators.contains(operatorNodeRef)) operators.add(operatorNodeRef);
+				operators.add(operatorNodeRef);
 			}
 		}
 		
@@ -121,11 +122,13 @@ public class PostClass extends DeclarativeWebScript {
 		nodeService.setProperties(newClass, properties);
 		nodeService.setAssociations(newClass, GameModel.ASSOC_G_RELATED_OPERATORS, operators);
 		LOG.debug("All properties setted with success");
+		status.setCode(201, "The new class with id " + newClass.getId() + " has been successfully created");
+		status.setRedirect(false);
 		
 		// Fill the model
 		model.put("id", newClass.getId());
 		model.put("type", typeUpperCase);
-		model.put("relatedOperators", (relatedOperators == null) ? Collections.EMPTY_LIST : relatedOperators);
+		model.put("relatedOperators", relatedOperators);
 		
 		return model;
 	}

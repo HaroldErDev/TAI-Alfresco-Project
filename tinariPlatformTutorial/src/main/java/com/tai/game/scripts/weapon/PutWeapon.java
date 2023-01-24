@@ -67,7 +67,7 @@ public class PutWeapon extends DeclarativeWebScript {
 		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 		
 		if (name != null && !name.isEmpty()) {
-			NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(nodeRef), "Weapons");
+			NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Weapons");
 			
 			if (weaponsFolder == null) {
 				status.setCode(404, "There is no 'Weapons' folder");

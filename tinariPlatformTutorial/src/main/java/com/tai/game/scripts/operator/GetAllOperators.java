@@ -42,7 +42,7 @@ public class GetAllOperators extends DeclarativeWebScript {
 		Map<String, Object> operators = new HashMap<>();
 		
 		// Check the existence of the Operators folder and get its node reference
-		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Operators");
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
 		
 		// Check if the folder exists
 		if (operatorsFolder == null) {

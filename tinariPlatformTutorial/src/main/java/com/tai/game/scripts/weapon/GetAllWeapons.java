@@ -41,7 +41,7 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		Map<String, Object> weapons = new HashMap<>();
 		
 		// Check the existence of the Weapons folder and get its node reference
-		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Weapons");
+		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Weapons");
 		
 		// Check if the folder exists
 		if (weaponsFolder == null) {

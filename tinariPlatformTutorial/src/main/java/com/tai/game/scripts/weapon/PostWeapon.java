@@ -65,7 +65,7 @@ public class PostWeapon extends DeclarativeWebScript {
 		if (!nodeValidator.constraintValueParamIsValid(fireMode, GameModel.CONS_G_FIRE_MODE_LIST, status)) return model;
 		
 		// Get the Weapons folder
-		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Weapons");
+		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Weapons");
 		
 		if (weaponsFolder == null) {
 			status.setCode(404, "There is no 'Weapons' folder");
@@ -98,6 +98,8 @@ public class PostWeapon extends DeclarativeWebScript {
 			nodeService.addAspect(newWeapon, GameModel.ASPECT_G_SKIN, Collections.singletonMap(GameModel.PROP_G_SKIN_NAME, skinName));
 		}
 		LOG.debug("All properties setted with success");
+		status.setCode(201, "The new weapon with id " + newWeapon.getId() + " has been successfully created");
+		status.setRedirect(false);
 		
 		// Fill the model
 		model.put("id", newWeapon.getId());

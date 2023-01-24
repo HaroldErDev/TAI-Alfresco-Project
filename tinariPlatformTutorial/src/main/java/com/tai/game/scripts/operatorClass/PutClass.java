@@ -15,7 +15,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,9 +48,8 @@ public class PutClass extends DeclarativeWebScript {
 		// Get all parameters from the URI query
 		String id = req.getParameter("id");
 		String type = req.getParameter("type");
-		String[] operatorsToAdd = StringUtils.split(RegExUtils.replaceAll(req.getParameter("addOperators"), "\\s", StringUtils.EMPTY), ",");
-		String[] operatorsToRemove = StringUtils.split(RegExUtils.replaceAll(req.getParameter("removeOperators"), "\\s", StringUtils.EMPTY), 
-				  									   ",");
+		String fullOperatorsToAdd = req.getParameter("addOperators");
+		String fullOperatorsToRemove = req.getParameter("removeOperators");
 		
 		// Check if the id parameter was passed to the URI query
 		if (id == null || id.isEmpty()) {
@@ -72,7 +70,7 @@ public class PutClass extends DeclarativeWebScript {
 		// Update properties
 		LOG.debug("Updating properties...");
 		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-		NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef(nodeRef);
+		NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef();
 		
 		if (type != null && !type.isEmpty()) {
 			String typeUpperCase = type.toUpperCase();
@@ -102,19 +100,24 @@ public class PutClass extends DeclarativeWebScript {
 		}
 		
 		// Remove from the association the operators passed to the URI query
-		if (operatorsToRemove != null && operatorsToRemove.length != 0) {
-			List<String> toRemove = Arrays.asList(operatorsToRemove);
+		if (fullOperatorsToRemove != null && !fullOperatorsToRemove.isEmpty()) {
+			String fixedOperatorsToRemove = fullOperatorsToRemove.replaceAll(",{2,}", ",").replaceAll("^,|,$", StringUtils.EMPTY);
+			
+			List<String> operatorsToRemove = Arrays.asList(StringUtils.split(fixedOperatorsToRemove, ","));
 			Iterator<NodeRef> iterator = operators.iterator();
 			
 			while (iterator.hasNext()) {
 				String operatorName = (String) nodeService.getProperty(iterator.next(), GameModel.PROP_G_OPERATOR_NAME);
 				
-				if (toRemove.contains(operatorName)) iterator.remove();
+				if (operatorsToRemove.contains(operatorName)) iterator.remove();
 			}
 		}
 		
 		// Add to the association the operators passed to the URI query
-		if (operatorsToAdd != null && operatorsToAdd.length != 0) {
+		if (fullOperatorsToAdd != null && !fullOperatorsToAdd.isEmpty()) {
+			String fixedOperatorsToAdd = fullOperatorsToAdd.replaceAll(",{2,}", ",").replaceAll("^,|,$", StringUtils.EMPTY);
+			String[] operatorsToAdd = StringUtils.split(fixedOperatorsToAdd, ",");
+			
 			NodeRef operatorsFolder = fileFolderManager.findNodeByName(docLibNodeRef, "Operators");
 			
 			if (operatorsFolder == null) {

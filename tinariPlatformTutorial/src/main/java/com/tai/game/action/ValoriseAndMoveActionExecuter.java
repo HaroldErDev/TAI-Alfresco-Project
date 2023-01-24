@@ -69,7 +69,7 @@ public class ValoriseAndMoveActionExecuter extends ActionExecuterAbstractBase {
 		// Init implementions
 		FileFolderManager.setLog(LOG);
 		
-		NodeRef docLibFolder = fileFolderManager.getDocLibNodeRef(actionedUponNodeRef);
+		NodeRef docLibFolder = fileFolderManager.getDocLibNodeRef();
 		
 		String errorMessage = StringUtils.EMPTY;
 		

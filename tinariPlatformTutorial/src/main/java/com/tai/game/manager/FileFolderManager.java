@@ -33,17 +33,17 @@ public class FileFolderManager {
 		LOG = logger;
 	}
 	
-	public NodeRef getDocLibNodeRefFromSite() {
+	public NodeRef getDocLibNodeRef() {
 		return siteService.getContainer("Tutorial-Tinari", SiteService.DOCUMENT_LIBRARY);
 	}
 	
-	public NodeRef getDocLibNodeRef(NodeRef nodeToStartSearch) {
+	/*public NodeRef getDocLibNodeRef(NodeRef nodeToStartSearch) {
 		while (!fileFolderService.getFileInfo(nodeToStartSearch).getName().equals("documentLibrary") && nodeToStartSearch != null) {
 			nodeToStartSearch = nodeService.getPrimaryParent(nodeToStartSearch).getParentRef();
 		}
 		
 		return nodeToStartSearch;
-	}
+	}*/
 	
 	public NodeRef findNodeByName(NodeRef rootFolder, String nodeName) {
 		if (rootFolder == null) return null;
@@ -62,7 +62,7 @@ public class FileFolderManager {
 	}
 	
 	public void move(NodeRef actionedUponNodeRef, String destinationFolderName, String originalFileName, String newFileName) {
-		NodeRef docLibFolder = getDocLibNodeRef(actionedUponNodeRef);
+		NodeRef docLibFolder = getDocLibNodeRef();
 		NodeRef destinationFolder = findNodeByName(docLibFolder, destinationFolderName);
 		
 		if (destinationFolder == null) {
@@ -102,7 +102,7 @@ public class FileFolderManager {
 		newFileName += __ERROR_;
 		
 		String folderName = "Errors";
-		NodeRef docLibFolder = getDocLibNodeRef(fileToMove);
+		NodeRef docLibFolder = getDocLibNodeRef();
 		NodeRef destinationFolder = fileFolderService.searchSimple(docLibFolder, folderName);
 		
 		if (destinationFolder == null) {

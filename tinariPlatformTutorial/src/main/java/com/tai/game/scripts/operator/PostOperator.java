@@ -60,7 +60,7 @@ public class PostOperator extends DeclarativeWebScript {
 		if (!nodeValidator.blockedParamIsValid(blocked, status)) return model;
 		
 		// Get the Operators folder
-		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRefFromSite(), "Operators");
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
 		
 		if (operatorsFolder == null) {
 			status.setCode(404, "There is no 'Operators' folder");
@@ -92,6 +92,8 @@ public class PostOperator extends DeclarativeWebScript {
 			nodeService.addAspect(newOperator, GameModel.ASPECT_G_SKIN, Collections.singletonMap(GameModel.PROP_G_SKIN_NAME, skinName));
 		}
 		LOG.debug("All properties setted with success");
+		status.setCode(201, "The new operator with id " + newOperator.getId() + " has been successfully created");
+		status.setRedirect(false);
 		
 		// Fill the model
 		model.put("id", newOperator.getId());
