@@ -24,14 +24,14 @@
 	
 	"Links" : {
 		<#if prevPage?? && nextPage??>
-			"prev" : "${prevPage}",
-			"next" : "${nextPage}"
+			"prev" : "${prevPage.json}",
+			"next" : "${nextPage.json}"
 		<#else>
 			<#if prevPage??>
-				"prev" : "${prevPage}"
+				"prev" : "${prevPage.json}"
 			</#if>
 			<#if nextPage??>
-				"next" : "${nextPage}"
+				"next" : "${nextPage.json}"
 			</#if>
 		</#if>
 	}

@@ -33,10 +33,6 @@ public class FileFolderManager {
 		LOG = logger;
 	}
 	
-	public NodeRef getDocLibNodeRef() {
-		return siteService.getContainer("Tutorial-Tinari", SiteService.DOCUMENT_LIBRARY);
-	}
-	
 	/*public NodeRef getDocLibNodeRef(NodeRef nodeToStartSearch) {
 		while (!fileFolderService.getFileInfo(nodeToStartSearch).getName().equals("documentLibrary") && nodeToStartSearch != null) {
 			nodeToStartSearch = nodeService.getPrimaryParent(nodeToStartSearch).getParentRef();
@@ -45,6 +41,22 @@ public class FileFolderManager {
 		return nodeToStartSearch;
 	}*/
 	
+	/**
+     * Gets the node reference of the "documentLibrary" folder from "Tutorial-Tinari" site.
+     *
+     * @return  noderef of "documentLibrary" folder
+     */
+	public NodeRef getDocLibNodeRef() {
+		return siteService.getContainer("Tutorial-Tinari", SiteService.DOCUMENT_LIBRARY);
+	}
+	
+	/**
+     * Finds the node reference by its name.
+     *
+     * @param rootFolder  root node to start the search
+     * @param nodeName  name of the node to find
+     * @return  noderef of the node with "nodeName" or null if the node cannot be found
+     */
 	public NodeRef findNodeByName(NodeRef rootFolder, String nodeName) {
 		if (rootFolder == null) return null;
 		
@@ -61,16 +73,37 @@ public class FileFolderManager {
 		return null;
 	}
 	
+	/**
+     * Finds the node reference by its name, starting the search from the "documentLibrary" folder.
+     * 
+     * @param nodeName  name of the node to find
+     * @return  noderef of the node with "nodeName" or null if the node cannot be found
+     */
+	public NodeRef findNodeByName(String nodeName) {
+		return findNodeByName(getDocLibNodeRef(), nodeName);
+	}
+	
+	/**
+     * Moves the node to a specified folder with a new name, carrying out appropriate checks. If the destination folder
+     * cannot be found, than it will be created inside the "Game" folder. If the node to move already exists in the
+     * destination folder, than it will be moved to the "Errors" folder.
+     * <p>
+     * <b>Warning:</b> need to be {@link com.tai.game.manager.FileFolderManager#setLog(logger) set Log}
+     * 
+     * @param actionedUponNodeRef  node to move
+     * @param destinationFolderName  name of the destination folder
+     * @param originalFileName  the original node name
+     * @param newFileName  the new name of the node
+     */
 	public void move(NodeRef actionedUponNodeRef, String destinationFolderName, String originalFileName, String newFileName) {
-		NodeRef docLibFolder = getDocLibNodeRef();
-		NodeRef destinationFolder = findNodeByName(docLibFolder, destinationFolderName);
+		NodeRef destinationFolder = findNodeByName(destinationFolderName);
 		
 		if (destinationFolder == null) {
 			String gameFolderName = "Game";
-			NodeRef gameFolder = findNodeByName(docLibFolder, gameFolderName);
+			NodeRef gameFolder = findNodeByName(gameFolderName);
 			
 			if (gameFolder == null) {
-				gameFolder = fileFolderService.create(docLibFolder, gameFolderName, ContentModel.TYPE_FOLDER).getNodeRef();
+				gameFolder = fileFolderService.create(getDocLibNodeRef(), gameFolderName, ContentModel.TYPE_FOLDER).getNodeRef();
 				LOG.debug("the folder " + gameFolderName + " has been created inside the documentLibrary folder");
 			}
 			
@@ -79,8 +112,7 @@ public class FileFolderManager {
 		}
 		
 		if (fileFolderService.searchSimple(destinationFolder, newFileName) != null) {
-			String errorMessage = originalFileName + " already exists in folder " + destinationFolderName + " with name " 
-								+ "'"+newFileName+"'";
+			String errorMessage = "'"+newFileName+"'" + " already exists in folder " + destinationFolderName;
 			LOG.error(ERROR_ON + actionedUponNodeRef + ": " + errorMessage);
 			moveToErrorsFolder(actionedUponNodeRef, errorMessage, originalFileName);
 		} else {
@@ -94,12 +126,22 @@ public class FileFolderManager {
 		}
 	}
 	
-	public void moveToErrorsFolder(NodeRef fileToMove, String errorMessage, String newFileName) {
-		if (newFileName == null || newFileName.isEmpty()) {
+	/**
+     * Moves the node to the "Errors" folder, carrying out appropriate checks. If the "Errors" folder cannot be found,
+     * than it will be created inside the "documentLibrary" folder.
+     * <p>
+     * <b>Warning:</b> need to be {@link com.tai.game.manager.FileFolderManager#setLog(logger) set Log}
+     * 
+     * @param fileToMove  node to move
+     * @param errorMessage  an explanation of the error
+     * @param originalFileName  the original node name
+     */
+	public void moveToErrorsFolder(NodeRef fileToMove, String errorMessage, String originalFileName) {
+		if (originalFileName == null || originalFileName.isEmpty()) {
 			String fileName = (String) nodeService.getProperty(fileToMove, ContentModel.PROP_NAME);
-			newFileName = StringUtils.substringBefore(fileName, ".");
+			originalFileName = StringUtils.substringBefore(fileName, ".");
 		}
-		newFileName += __ERROR_;
+		originalFileName += __ERROR_;
 		
 		String folderName = "Errors";
 		NodeRef docLibFolder = getDocLibNodeRef();
@@ -111,10 +153,10 @@ public class FileFolderManager {
 		}
 		
 		int count = 0;
-		while (fileFolderService.searchSimple(destinationFolder, newFileName+count) != null) {
+		while (fileFolderService.searchSimple(destinationFolder, originalFileName+count) != null) {
 			count += 1;
 		}
-		newFileName += count;
+		originalFileName += count;
 		
 		Map<QName, Serializable> errorAspectValues = new HashMap<QName, Serializable>();
 		errorAspectValues.put(GameModel.PROP_G_ERROR_MESSAGE, errorMessage);
@@ -122,8 +164,8 @@ public class FileFolderManager {
 		LOG.debug("Added aspect " + "'"+GameModel.ASPECT_G_ERROR.getLocalName()+"'");
 		
 		try {
-			fileFolderService.move(fileToMove, destinationFolder, newFileName);
-			LOG.debug(newFileName + " was successfully moved to the " + folderName + " folder");
+			fileFolderService.move(fileToMove, destinationFolder, originalFileName);
+			LOG.debug(originalFileName + " was successfully moved to the " + folderName + " folder");
 		} catch (FileNotFoundException e) {
 			LOG.error(e.getMessage(), e);
 			return;

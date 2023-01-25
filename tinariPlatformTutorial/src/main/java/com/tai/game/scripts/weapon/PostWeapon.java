@@ -65,7 +65,7 @@ public class PostWeapon extends DeclarativeWebScript {
 		if (!nodeValidator.constraintValueParamIsValid(fireMode, GameModel.CONS_G_FIRE_MODE_LIST, status)) return model;
 		
 		// Get the Weapons folder
-		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Weapons");
+		NodeRef weaponsFolder = fileFolderManager.findNodeByName("Weapons");
 		
 		if (weaponsFolder == null) {
 			status.setCode(404, "There is no 'Weapons' folder");

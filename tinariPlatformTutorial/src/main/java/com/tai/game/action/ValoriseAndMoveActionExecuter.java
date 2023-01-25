@@ -69,8 +69,6 @@ public class ValoriseAndMoveActionExecuter extends ActionExecuterAbstractBase {
 		// Init implementions
 		FileFolderManager.setLog(LOG);
 		
-		NodeRef docLibFolder = fileFolderManager.getDocLibNodeRef();
-		
 		String errorMessage = StringUtils.EMPTY;
 		
 		LOG.debug("Valorising properties on node " + actionedUponNodeRef);
@@ -228,7 +226,7 @@ public class ValoriseAndMoveActionExecuter extends ActionExecuterAbstractBase {
 			
 			for (int i=1; i<nodeProperties.length; i++) {
 				String operatorName = nodeProperties[i];
-				NodeRef operatorNodeRef = fileFolderManager.findNodeByName(docLibFolder, operatorName);
+				NodeRef operatorNodeRef = fileFolderManager.findNodeByName(operatorName);
 				
 				if (operatorNodeRef != null) {
 					List<AssociationRef> sourceAssocsRef = nodeService.getSourceAssocs(operatorNodeRef, GameModel.ASSOC_G_RELATED_OPERATORS);

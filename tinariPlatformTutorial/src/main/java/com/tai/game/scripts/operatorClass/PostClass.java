@@ -57,7 +57,7 @@ public class PostClass extends DeclarativeWebScript {
 		if (!nodeValidator.constraintValueParamIsValid(typeUpperCase, GameModel.CONS_G_OPERATOR_CLASS_LIST, status)) return model;
 		
 		// Get the Classes folder
-		NodeRef classesFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Classes");
+		NodeRef classesFolder = fileFolderManager.findNodeByName("Classes");
 		
 		if (classesFolder == null) {
 			status.setCode(404, "There is no 'Classes' folder");
@@ -71,7 +71,7 @@ public class PostClass extends DeclarativeWebScript {
 		if (nodeValidator.alreadyExists(classesFolder, typeNormalCase, status)) return model;
 		
 		// Get the Operators folder
-		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName("Operators");
 		
 		if (operatorsFolder == null) {
 			status.setCode(404, "There is no 'Operators' folder");

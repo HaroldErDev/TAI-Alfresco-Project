@@ -19,6 +19,7 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import com.tai.game.manager.FileFolderManager;
 import com.tai.game.manager.PaginationManager;
 import com.tai.game.model.GameModel;
+import com.tai.game.scripts.URIExtensionModifier;
 
 public class GetAllWeapons extends DeclarativeWebScript {
 	
@@ -41,7 +42,7 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		Map<String, Object> weapons = new HashMap<>();
 		
 		// Check the existence of the Weapons folder and get its node reference
-		NodeRef weaponsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Weapons");
+		NodeRef weaponsFolder = fileFolderManager.findNodeByName("Weapons");
 		
 		// Check if the folder exists
 		if (weaponsFolder == null) {
@@ -95,8 +96,12 @@ public class GetAllWeapons extends DeclarativeWebScript {
 		LOG.debug("All properties added to the model with success");
 		
 		// Check the existence of next and prev pages and add them to the model
-		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.constructUriNextPage("weapons.html", page));
-		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.constructUriPrevPage("weapons.html", page));
+		if (paginationManager.hasNextPage(results)) {
+			model.put("nextPage", new URIExtensionModifier(paginationManager.constructUriNextPage("weapons", page)));
+		}
+		if (paginationManager.hasPrevPage(page)) {
+			model.put("prevPage", new URIExtensionModifier(paginationManager.constructUriPrevPage("weapons", page)));
+		}
 		
 		// Fill the model
 		model.put("weapons", weapons);

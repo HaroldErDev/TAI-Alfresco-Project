@@ -20,6 +20,7 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import com.tai.game.manager.FileFolderManager;
 import com.tai.game.manager.PaginationManager;
 import com.tai.game.model.GameModel;
+import com.tai.game.scripts.URIExtensionModifier;
 
 public class GetAllOperators extends DeclarativeWebScript {
 	
@@ -42,7 +43,7 @@ public class GetAllOperators extends DeclarativeWebScript {
 		Map<String, Object> operators = new HashMap<>();
 		
 		// Check the existence of the Operators folder and get its node reference
-		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName("Operators");
 		
 		// Check if the folder exists
 		if (operatorsFolder == null) {
@@ -104,8 +105,12 @@ public class GetAllOperators extends DeclarativeWebScript {
 		LOG.debug("All properties added to the model with success");
 		
 		// Check the existence of next and prev pages and add them to the model
-		if (paginationManager.hasNextPage(results)) model.put("nextPage", paginationManager.constructUriNextPage("operators.html", page));
-		if (paginationManager.hasPrevPage(page)) model.put("prevPage", paginationManager.constructUriPrevPage("operators.html", page));
+		if (paginationManager.hasNextPage(results)) {
+			model.put("nextPage", new URIExtensionModifier(paginationManager.constructUriNextPage("operators", page)));
+		}
+		if (paginationManager.hasPrevPage(page)) {
+			model.put("prevPage", new URIExtensionModifier(paginationManager.constructUriPrevPage("operators", page)));
+		}
 		
 		// Fill the model
 		model.put("operators", operators);

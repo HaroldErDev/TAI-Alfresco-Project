@@ -26,13 +26,13 @@
 		
 		<#if prevPage??>
 			<span>
-				<a href="${prevPage}">Previous Page</a>
+				<a href="${prevPage.html}">Previous Page</a>
 				&emsp;
 			</span>
 		</#if>
 		<#if nextPage??>
 			<span>
-				<a href="${nextPage}">Next Page</a>
+				<a href="${nextPage.html}">Next Page</a>
 			</span>
 		</#if>
 	</body>

@@ -60,7 +60,7 @@ public class PostOperator extends DeclarativeWebScript {
 		if (!nodeValidator.blockedParamIsValid(blocked, status)) return model;
 		
 		// Get the Operators folder
-		NodeRef operatorsFolder = fileFolderManager.findNodeByName(fileFolderManager.getDocLibNodeRef(), "Operators");
+		NodeRef operatorsFolder = fileFolderManager.findNodeByName("Operators");
 		
 		if (operatorsFolder == null) {
 			status.setCode(404, "There is no 'Operators' folder");

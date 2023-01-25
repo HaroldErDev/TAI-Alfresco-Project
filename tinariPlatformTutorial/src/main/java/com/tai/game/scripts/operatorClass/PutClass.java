@@ -70,14 +70,13 @@ public class PutClass extends DeclarativeWebScript {
 		// Update properties
 		LOG.debug("Updating properties...");
 		Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-		NodeRef docLibNodeRef = fileFolderManager.getDocLibNodeRef();
 		
 		if (type != null && !type.isEmpty()) {
 			String typeUpperCase = type.toUpperCase();
 			String typeNormalCase = type.charAt(0)+type.substring(1).toLowerCase();
 			if (!nodeValidator.constraintValueParamIsValid(typeUpperCase, GameModel.CONS_G_OPERATOR_CLASS_LIST, status)) return model;
 			
-			NodeRef classesFolder = fileFolderManager.findNodeByName(docLibNodeRef, "Classes");
+			NodeRef classesFolder = fileFolderManager.findNodeByName("Classes");
 			
 			if (classesFolder == null) {
 				status.setCode(404, "There is no 'Classes' folder");
@@ -118,7 +117,7 @@ public class PutClass extends DeclarativeWebScript {
 			String fixedOperatorsToAdd = fullOperatorsToAdd.replaceAll(",{2,}", ",").replaceAll("^,|,$", StringUtils.EMPTY);
 			String[] operatorsToAdd = StringUtils.split(fixedOperatorsToAdd, ",");
 			
-			NodeRef operatorsFolder = fileFolderManager.findNodeByName(docLibNodeRef, "Operators");
+			NodeRef operatorsFolder = fileFolderManager.findNodeByName("Operators");
 			
 			if (operatorsFolder == null) {
 				status.setCode(404, "There is no 'Operators' folder");

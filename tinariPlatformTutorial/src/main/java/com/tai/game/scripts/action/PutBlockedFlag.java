@@ -34,6 +34,7 @@ public class PutBlockedFlag extends DeclarativeWebScript {
 		
 		// Init implementations
 		Map<String, Object> model = new HashMap<>();
+		NodeValidator.setLog(LOG);
 		
 		// Get all parameters from the URI query
 		String id = req.getParameter("id");
