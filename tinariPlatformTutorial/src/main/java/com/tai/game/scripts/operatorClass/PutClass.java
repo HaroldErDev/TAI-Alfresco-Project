@@ -148,7 +148,7 @@ public class PutClass extends DeclarativeWebScript {
 		nodeService.setProperties(nodeRef, properties);
 		nodeService.setAssociations(nodeRef, GameModel.ASSOC_G_RELATED_OPERATORS, operators);
 		
-		// Raname node if has been changed
+		// Raname node if type has been changed
 		if (type != null && !type.isEmpty()) {
 			try {
 				fileFolderService.rename(nodeRef, type.charAt(0)+type.substring(1).toLowerCase());

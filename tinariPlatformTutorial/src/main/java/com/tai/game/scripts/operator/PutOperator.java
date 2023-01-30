@@ -95,7 +95,7 @@ public class PutOperator extends DeclarativeWebScript {
 		// Set properties
 		nodeService.setProperties(nodeRef, properties);
 		
-		// Raname node if has been changed
+		// Raname node if name has been changed
 		if (name != null && !name.isEmpty()) {
 			try {
 				fileFolderService.rename(nodeRef, name);
